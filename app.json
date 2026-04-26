@@ -1,8 +1,9 @@
 {
   "expo": {
-    "name": "CarInspection",
-    "slug": "CarInspection",
+    "name": "carinspection",
+    "slug": "carinspection",
     "version": "1.0.0",
+    "scheme": "car-inspection-app",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -24,6 +25,11 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      "expo-sqlite",
+      "expo-secure-store",
+      "expo-router"
+    ]
   }
 }
