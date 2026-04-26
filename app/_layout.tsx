@@ -3,6 +3,7 @@ import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useAuthStore } from '../src/store/useAuthStore';
+import { initDatabase } from '../src/services/databaseService';
 
 export default function RootLayout() {
   const { isAuthenticated, isLoading, initialize } = useAuthStore();
@@ -10,7 +11,11 @@ export default function RootLayout() {
   const router = useRouter();
 
   useEffect(() => {
-    initialize();
+    const setup = async () => {
+      await initDatabase();
+      await initialize();
+    };
+    setup();
   }, []);
 
   useEffect(() => {
