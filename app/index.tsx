@@ -1,14 +1,31 @@
 import React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
-import { Camera, Car, ClipboardList, Settings } from 'lucide-react-native';
-import { Link } from 'expo-router';
+import { Camera, Car, ClipboardList, Settings, LogOut } from 'lucide-react-native';
+import { Link, useRouter } from 'expo-router';
+import { useAuthStore } from '../src/store/useAuthStore';
 
 export default function Home() {
+  const logout = useAuthStore((state) => state.logout);
+  const user = useAuthStore((state) => state.user);
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await logout();
+    router.replace('/(auth)/login');
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Vehicle Inspection</Text>
-        <Text style={styles.subtitle}>Start a new inspection or view history</Text>
+        <View style={styles.headerTop}>
+          <View>
+            <Text style={styles.title}>Hello, {user?.name || 'User'}</Text>
+            <Text style={styles.subtitle}>Ready for an inspection?</Text>
+          </View>
+          <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
+            <LogOut size={24} color="#f4511e" />
+          </TouchableOpacity>
+        </View>
       </View>
 
       <View style={styles.grid}>
@@ -53,6 +70,16 @@ const styles = StyleSheet.create({
   header: {
     marginTop: 40,
     marginBottom: 40,
+  },
+  headerTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  logoutButton: {
+    padding: 10,
+    backgroundColor: '#fff5f2',
+    borderRadius: 12,
   },
   title: {
     fontSize: 28,
