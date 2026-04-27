@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Switch, Alert } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { User, Bell, Shield, Cloud, Info, LogOut, ChevronRight, Moon, Globe, HelpCircle } from 'lucide-react-native';
 import { useAuthStore } from '../../src/store/useAuthStore';
 import { useRouter } from 'expo-router';
@@ -79,7 +80,7 @@ export default function Settings() {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         
         {/* Profile Header */}
@@ -159,7 +160,7 @@ export default function Settings() {
         </Animated.View>
 
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 

@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { StyleSheet, Text, View, FlatList, TouchableOpacity, TextInput, Modal, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Car, Plus, X, Hash, Calendar, Tag, Shield, Info, ChevronRight, Search } from 'lucide-react-native';
 import { databaseService } from '../../src/services/databaseService';
 import { useAuthStore } from '../../src/store/useAuthStore';
@@ -12,6 +13,7 @@ export default function Vehicles() {
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const insets = useSafeAreaInsets();
   
   // Form State
   const [make, setMake] = useState('');
@@ -105,7 +107,7 @@ export default function Vehicles() {
   return (
     <View style={styles.container}>
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top + 20 }]}>
         <Text style={styles.headerTitle}>My Garage</Text>
         <View style={styles.searchBar}>
           <Search size={20} color="#94A3B8" />
@@ -272,7 +274,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#F8FAFC',
   },
   header: {
-    paddingTop: Platform.OS === 'ios' ? 60 : 40,
     paddingHorizontal: 24,
     paddingBottom: 24,
     backgroundColor: '#fff',

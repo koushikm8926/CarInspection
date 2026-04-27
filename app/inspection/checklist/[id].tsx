@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity, ActivityIndicator, Alert, Platform } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router';
 import { CheckCircle2, Circle, ChevronRight, Camera, ArrowLeft, Info, Trophy } from 'lucide-react-native';
 import { INSPECTION_STEPS, InspectionStep } from '../../../src/constants/inspectionSteps';
@@ -14,6 +15,7 @@ export default function InspectionChecklist() {
   const [photos, setPhotos] = useState<PhotoRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const { saveInspectionData } = useInspectionStore();
+  const insets = useSafeAreaInsets();
 
   const loadPhotos = async () => {
     try {
@@ -71,7 +73,7 @@ export default function InspectionChecklist() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top + 20 }]}>
         <View style={styles.navRow}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
             <ArrowLeft size={24} color="#1E293B" />
@@ -182,7 +184,6 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: '#FFF',
-    paddingTop: Platform.OS === 'ios' ? 60 : 40,
     paddingHorizontal: 24,
     paddingBottom: 24,
     borderBottomLeftRadius: 32,

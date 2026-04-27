@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, TextInput, ActivityIndicator, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useInspectionStore } from '../../src/store/useInspectionStore';
 import { useAuthStore } from '../../src/store/useAuthStore';
@@ -40,11 +41,14 @@ export default function StartInspection() {
   );
 
   return (
-    <KeyboardAvoidingView 
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    <SafeAreaView 
       style={styles.container}
     >
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+      <KeyboardAvoidingView 
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}
+      >
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         <Animated.View entering={FadeInDown.duration(600)} style={styles.header}>
           <View style={styles.iconCircle}>
             <Sparkles size={32} color="#4F46E5" />
@@ -105,9 +109,9 @@ export default function StartInspection() {
             text="Follow the on-screen guides for the best perspectives." 
             color="#6366F1"
           />
-        </Animated.View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
@@ -118,7 +122,6 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: 24,
-    paddingTop: 60,
   },
   header: {
     alignItems: 'center',

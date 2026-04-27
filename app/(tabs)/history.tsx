@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { StyleSheet, Text, View, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl, Image, TextInput, Platform } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useInspectionStore } from '../../src/store/useInspectionStore';
 import { useAuthStore } from '../../src/store/useAuthStore';
 import { CheckCircle2, Clock, ChevronRight, Image as ImageIcon, ClipboardList, Search, Filter, Calendar } from 'lucide-react-native';
@@ -14,6 +15,7 @@ export default function History() {
   const [photos, setPhotos] = useState<Record<string, string>>({});
   const [searchQuery, setSearchQuery] = useState('');
   const router = useRouter();
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     const fetchPhotos = async () => {
@@ -111,7 +113,7 @@ export default function History() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top + 20 }]}>
         <Text style={styles.headerTitle}>Inspection History</Text>
         <View style={styles.searchContainer}>
           <View style={styles.searchBar}>
@@ -174,7 +176,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#F8FAFC',
   },
   header: {
-    paddingTop: Platform.OS === 'ios' ? 60 : 40,
     paddingHorizontal: 24,
     paddingBottom: 24,
     backgroundColor: '#fff',

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Mail, Lock, User, UserPlus } from 'lucide-react-native';
 import { useAuthStore } from '../../src/store/useAuthStore';
@@ -35,79 +36,81 @@ export default function SignUp() {
   };
 
   return (
-    <KeyboardAvoidingView 
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}
-    >
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Create Account</Text>
-          <Text style={styles.subtitle}>Join our community of vehicle inspectors</Text>
-        </View>
-
-        <View style={styles.form}>
-          {error ? <Text style={styles.errorText}>{error}</Text> : null}
-
-          <View style={styles.inputContainer}>
-            <User size={20} color="#999" style={styles.inputIcon} />
-            <TextInput
-              style={styles.input}
-              placeholder="Full Name"
-              value={name}
-              onChangeText={setName}
-              placeholderTextColor="#999"
-            />
+    <SafeAreaView style={styles.container}>
+      <KeyboardAvoidingView 
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}
+      >
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          <View style={styles.header}>
+            <Text style={styles.title}>Create Account</Text>
+            <Text style={styles.subtitle}>Join our community of vehicle inspectors</Text>
           </View>
 
-          <View style={styles.inputContainer}>
-            <Mail size={20} color="#999" style={styles.inputIcon} />
-            <TextInput
-              style={styles.input}
-              placeholder="Email Address"
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              placeholderTextColor="#999"
-            />
-          </View>
+          <View style={styles.form}>
+            {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
-          <View style={styles.inputContainer}>
-            <Lock size={20} color="#999" style={styles.inputIcon} />
-            <TextInput
-              style={styles.input}
-              placeholder="Password"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-              placeholderTextColor="#999"
-            />
-          </View>
+            <View style={styles.inputContainer}>
+              <User size={20} color="#999" style={styles.inputIcon} />
+              <TextInput
+                style={styles.input}
+                placeholder="Full Name"
+                value={name}
+                onChangeText={setName}
+                placeholderTextColor="#999"
+              />
+            </View>
 
-          <TouchableOpacity 
-            style={styles.signUpButton} 
-            onPress={handleSignUp}
-            disabled={loading}
-          >
-            {loading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <>
-                <Text style={styles.signUpButtonText}>Sign Up</Text>
-                <UserPlus size={20} color="#fff" style={{ marginLeft: 8 }} />
-              </>
-            )}
-          </TouchableOpacity>
+            <View style={styles.inputContainer}>
+              <Mail size={20} color="#999" style={styles.inputIcon} />
+              <TextInput
+                style={styles.input}
+                placeholder="Email Address"
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                placeholderTextColor="#999"
+              />
+            </View>
 
-          <View style={styles.footer}>
-            <Text style={styles.footerText}>Already have an account? </Text>
-            <TouchableOpacity onPress={() => router.back()}>
-              <Text style={styles.footerLink}>Login</Text>
+            <View style={styles.inputContainer}>
+              <Lock size={20} color="#999" style={styles.inputIcon} />
+              <TextInput
+                style={styles.input}
+                placeholder="Password"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
+                placeholderTextColor="#999"
+              />
+            </View>
+
+            <TouchableOpacity 
+              style={styles.signUpButton} 
+              onPress={handleSignUp}
+              disabled={loading}
+            >
+              {loading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <>
+                  <Text style={styles.signUpButtonText}>Sign Up</Text>
+                  <UserPlus size={20} color="#fff" style={{ marginLeft: 8 }} />
+                </>
+              )}
             </TouchableOpacity>
+
+            <View style={styles.footer}>
+              <Text style={styles.footerText}>Already have an account? </Text>
+              <TouchableOpacity onPress={() => router.back()}>
+                <Text style={styles.footerLink}>Login</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 

@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Dimensions, Platform } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Camera, Car, ClipboardList, Settings, Bell, ChevronRight, TrendingUp, Clock, CheckCircle2 } from 'lucide-react-native';
 import { Link, useRouter } from 'expo-router';
 import { useAuthStore } from '../../src/store/useAuthStore';
@@ -13,6 +14,7 @@ export default function Home() {
   const user = useAuthStore((state) => state.user);
   const { inspections, isLoading, loadInspections } = useInspectionStore();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     if (user) {
@@ -46,7 +48,7 @@ export default function Home() {
             colors={['#4F46E5', '#6366F1', '#818CF8']}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
-            style={styles.headerGradient}
+            style={[styles.headerGradient, { paddingTop: insets.top + 20 }]}
           >
             <View style={styles.headerTop}>
               <View>
@@ -152,7 +154,6 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
   headerGradient: {
-    paddingTop: Platform.OS === 'ios' ? 60 : 40,
     paddingHorizontal: 24,
     height: '100%',
     borderBottomLeftRadius: 40,
