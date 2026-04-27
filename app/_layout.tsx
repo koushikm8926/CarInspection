@@ -41,7 +41,7 @@ export default function RootLayout() {
       <Stack
         screenOptions={{
           headerStyle: {
-            backgroundColor: '#f4511e',
+            backgroundColor: '#4F46E5',
           },
           headerTintColor: '#fff',
           headerTitleStyle: {
@@ -49,7 +49,10 @@ export default function RootLayout() {
           },
         }}
       >
-        <Stack.Screen name="index" options={{ title: 'Car Inspection' }} />
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="inspection/checklist/[id]" options={{ title: 'Checklist', headerShown: false }} />
+        <Stack.Screen name="inspection/[id]" options={{ headerShown: false }} />
+        <Stack.Screen name="inspection/details/[id]" options={{ headerShown: false }} />
         <Stack.Screen name="(auth)/login" options={{ title: 'Login', headerShown: false }} />
         <Stack.Screen name="(auth)/signup" options={{ title: 'Sign Up', headerShown: false }} />
       </Stack>

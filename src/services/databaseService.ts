@@ -52,6 +52,16 @@ export const initDatabase = async () => {
       attempts INTEGER DEFAULT 0,
       lastAttempt DATETIME
     );
+
+    CREATE TABLE IF NOT EXISTS vehicles (
+      id TEXT PRIMARY KEY NOT NULL,
+      userId TEXT NOT NULL,
+      make TEXT,
+      model TEXT,
+      year TEXT,
+      plate TEXT,
+      createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
   `);
 
   return db;
@@ -98,6 +108,23 @@ export const databaseService = {
     return await db.getAllAsync<PhotoRecord>(
       'SELECT * FROM photos WHERE inspectionId = ?',
       [inspectionId]
+    );
+  },
+
+  // Vehicle Methods
+  async getVehicles(userId: string) {
+    const db = await this.getDb();
+    return await db.getAllAsync(
+      'SELECT * FROM vehicles WHERE userId = ? ORDER BY createdAt DESC',
+      [userId]
+    );
+  },
+
+  async addVehicle(vehicle: { id: string; userId: string; make: string; model: string; year: string; plate: string }) {
+    const db = await this.getDb();
+    await db.runAsync(
+      'INSERT INTO vehicles (id, userId, make, model, year, plate) VALUES (?, ?, ?, ?, ?, ?)',
+      [vehicle.id, vehicle.userId, vehicle.make, vehicle.model, vehicle.year, vehicle.plate]
     );
   }
 };
