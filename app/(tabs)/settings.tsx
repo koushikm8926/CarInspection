@@ -5,37 +5,27 @@ import { useAuthStore } from '../../src/store/useAuthStore';
 import { useRouter } from 'expo-router';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
-export default function Settings() {
-  const { user, logout } = useAuthStore();
-  const router = useRouter();
-  
-  // App States
-  const [autoSync, setAutoSync] = useState(true);
-  const [notifications, setNotifications] = useState(true);
-  const [darkMode, setDarkMode] = useState(false);
+interface SettingItemProps {
+  icon: any;
+  label: string;
+  value?: boolean;
+  type?: 'chevron' | 'switch';
+  onValueChange?: (value: boolean) => void;
+}
 
-  const handleLogout = () => {
-    Alert.alert(
-      'Logout',
-      'Are you sure you want to sign out?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { 
-          text: 'Logout', 
-          style: 'destructive',
-          onPress: async () => {
-            await logout();
-            router.replace('/(auth)/login');
-          }
-        },
-      ]
-    );
+const SettingItem = ({ icon: Icon, label, value, type = 'chevron', onValueChange }: SettingItemProps) => {
+  const handlePress = () => {
+    if (type === 'switch' && onValueChange) {
+      onValueChange(!value);
+    } else if (type === 'chevron') {
+      console.log('Navigate to', label);
+    }
   };
 
-  const SettingItem = ({ icon: Icon, label, value, type = 'chevron', onValueChange }: any) => (
+  return (
     <TouchableOpacity 
       style={styles.settingItem}
-      onPress={() => type === 'chevron' && console.log('Navigate to', label)}
+      onPress={handlePress}
       activeOpacity={0.7}
     >
       <View style={styles.settingLeft}>
@@ -58,6 +48,35 @@ export default function Settings() {
       </View>
     </TouchableOpacity>
   );
+};
+
+export default function Settings() {
+  const { user, logout } = useAuthStore();
+  const router = useRouter();
+  
+  // App States
+  const [autoSync, setAutoSync] = useState(true);
+  const [syncCellular, setSyncCellular] = useState(true);
+  const [notifications, setNotifications] = useState(true);
+  const [darkMode, setDarkMode] = useState(false);
+
+  const handleLogout = () => {
+    Alert.alert(
+      'Logout',
+      'Are you sure you want to sign out?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Logout', 
+          style: 'destructive',
+          onPress: async () => {
+            await logout();
+            router.replace('/(auth)/login');
+          }
+        },
+      ]
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -93,7 +112,8 @@ export default function Settings() {
               icon={Globe} 
               label="Sync over Cellular" 
               type="switch" 
-              value={true}
+              value={syncCellular}
+              onValueChange={setSyncCellular}
             />
           </View>
         </Animated.View>

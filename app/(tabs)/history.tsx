@@ -1,28 +1,32 @@
-import React, { useEffect } from 'react';
-import { StyleSheet, Text, View, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl, Image } from 'react-native';
+import React, { useEffect, useState, useCallback } from 'react';
+import { StyleSheet, Text, View, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl, Image, TextInput, Platform } from 'react-native';
 import { useInspectionStore } from '../../src/store/useInspectionStore';
 import { useAuthStore } from '../../src/store/useAuthStore';
-import { CheckCircle2, Clock, AlertCircle, ChevronRight, Image as ImageIcon, ClipboardList } from 'lucide-react-native';
+import { CheckCircle2, Clock, ChevronRight, Image as ImageIcon, ClipboardList, Search, Filter, Calendar } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { databaseService } from '../../src/services/databaseService';
-import Animated, { FadeInRight } from 'react-native-reanimated';
+import Animated, { FadeInDown, FadeInRight } from 'react-native-reanimated';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function History() {
   const { inspections, isLoading, loadInspections } = useInspectionStore();
   const { user } = useAuthStore();
-  const [photos, setPhotos] = React.useState<Record<string, string>>({});
+  const [photos, setPhotos] = useState<Record<string, string>>({});
+  const [searchQuery, setSearchQuery] = useState('');
   const router = useRouter();
 
   useEffect(() => {
     const fetchPhotos = async () => {
       const photoMap: Record<string, string> = {};
       for (const inspection of inspections) {
-        const itemPhotos = await databaseService.getPhotos(inspection.id);
-        if (itemPhotos.length > 0) {
-          photoMap[inspection.id] = itemPhotos[0].uri;
+        if (!photoMap[inspection.id]) {
+          const itemPhotos = await databaseService.getPhotos(inspection.id);
+          if (itemPhotos.length > 0) {
+            photoMap[inspection.id] = itemPhotos[0].uri;
+          }
         }
       }
-      setPhotos(photoMap);
+      setPhotos(prev => ({ ...prev, ...photoMap }));
     };
 
     if (inspections.length > 0) {
@@ -30,68 +34,133 @@ export default function History() {
     }
   }, [inspections]);
 
-  const onRefresh = React.useCallback(() => {
+  const onRefresh = useCallback(() => {
     if (user) loadInspections(user.id);
   }, [user]);
 
-  const getStatusIcon = (status: string) => {
-    if (status === 'uploaded') return <CheckCircle2 size={16} color="#34c759" />;
-    return <Clock size={16} color="#4F46E5" />;
+  const filteredInspections = inspections.filter(item => 
+    item.vehicleName?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const getStatusConfig = (status: string) => {
+    switch (status) {
+      case 'uploaded':
+        return { color: '#10B981', bg: '#ECFDF5', icon: CheckCircle2, label: 'COMPLETED' };
+      case 'pending':
+        return { color: '#F59E0B', bg: '#FFFBEB', icon: Clock, label: 'PENDING' };
+      default:
+        return { color: '#4F46E5', bg: '#EEF2FF', icon: Clock, label: 'DRAFT' };
+    }
   };
 
-  const renderItem = ({ item, index }: { item: any, index: number }) => (
-    <Animated.View entering={FadeInRight.delay(index * 100).duration(500).springify()}>
-      <TouchableOpacity 
-        style={styles.card} 
-        onPress={() => router.push(`/inspection/details/${item.id}`)}
-      >
-        <View style={styles.cardLeft}>
-          <View style={styles.thumbnailContainer}>
-            {photos[item.id] ? (
-              <Image source={{ uri: photos[item.id] }} style={styles.thumbnail} />
-            ) : (
-              <View style={styles.placeholderThumbnail}>
-                <ImageIcon size={24} color="#ccc" />
+  const renderItem = ({ item, index }: { item: any, index: number }) => {
+    const status = getStatusConfig(item.status);
+    const StatusIcon = status.icon;
+
+    return (
+      <Animated.View entering={FadeInRight.delay(index * 100).duration(500).springify()}>
+        <TouchableOpacity 
+          style={styles.card} 
+          onPress={() => router.push(`/inspection/checklist/${item.id}`)}
+        >
+          <View style={styles.cardHeader}>
+            <View style={styles.thumbnailContainer}>
+              {photos[item.id] ? (
+                <Image source={{ uri: photos[item.id] }} style={styles.thumbnail} />
+              ) : (
+                <View style={styles.placeholderThumbnail}>
+                  <ImageIcon size={24} color="#94A3B8" />
+                </View>
+              )}
+              <View style={[styles.statusMiniBadge, { backgroundColor: status.color }]} />
+            </View>
+            <View style={styles.cardInfo}>
+              <Text style={styles.vehicleName} numberOfLines={1}>{item.vehicleName || 'Untitled Inspection'}</Text>
+              <View style={styles.dateRow}>
+                <Calendar size={12} color="#94A3B8" />
+                <Text style={styles.dateText}>{new Date(item.createdAt).toLocaleDateString()}</Text>
               </View>
-            )}
+            </View>
+            <View style={[styles.statusBadge, { backgroundColor: status.bg }]}>
+              <StatusIcon size={12} color={status.color} />
+              <Text style={[styles.statusText, { color: status.color }]}>{status.label}</Text>
+            </View>
           </View>
-          <View>
-            <Text style={styles.vehicleName}>{item.vehicleName || 'Unknown Vehicle'}</Text>
-            <Text style={styles.date}>{new Date(item.createdAt).toLocaleDateString()}</Text>
+          
+          <View style={styles.cardFooter}>
+            <View style={styles.detailsRow}>
+              <View style={styles.detailItem}>
+                <Text style={styles.detailLabel}>Photos</Text>
+                <Text style={styles.detailValue}>12</Text>
+              </View>
+              <View style={styles.detailDivider} />
+              <View style={styles.detailItem}>
+                <Text style={styles.detailLabel}>Type</Text>
+                <Text style={styles.detailValue}>Full</Text>
+              </View>
+            </View>
+            <View style={styles.viewAction}>
+              <Text style={styles.viewText}>View</Text>
+              <ChevronRight size={16} color="#4F46E5" />
+            </View>
           </View>
-        </View>
-        <View style={styles.cardRight}>
-          <View style={styles.statusBadge}>
-            {getStatusIcon(item.status)}
-            <Text style={[styles.statusText, { color: item.status === 'uploaded' ? '#34c759' : '#4F46E5' }]}>
-              {item.status.toUpperCase()}
-            </Text>
-          </View>
-          <ChevronRight size={20} color="#ccc" />
-        </View>
-      </TouchableOpacity>
-    </Animated.View>
-  );
+        </TouchableOpacity>
+      </Animated.View>
+    );
+  };
 
   return (
     <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Inspection History</Text>
+        <View style={styles.searchContainer}>
+          <View style={styles.searchBar}>
+            <Search size={20} color="#94A3B8" />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search vehicles..."
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              placeholderTextColor="#94A3B8"
+            />
+          </View>
+          <TouchableOpacity style={styles.filterBtn}>
+            <Filter size={20} color="#4F46E5" />
+          </TouchableOpacity>
+        </View>
+      </View>
+
       {isLoading && inspections.length === 0 ? (
         <View style={styles.centered}>
-          <ActivityIndicator size="large" color="#f4511e" />
+          <ActivityIndicator size="large" color="#4F46E5" />
         </View>
-      ) : inspections.length === 0 ? (
+      ) : filteredInspections.length === 0 ? (
         <View style={styles.centered}>
-          <ClipboardList size={64} color="#eee" />
-          <Text style={styles.emptyText}>No inspections yet</Text>
+          <Animated.View entering={FadeInDown.duration(800)} style={styles.emptyStateContainer}>
+            <View style={styles.emptyIconContainer}>
+              <ClipboardList size={64} color="#CBD5E1" />
+            </View>
+            <Text style={styles.emptyTitle}>No inspections found</Text>
+            <Text style={styles.emptySubtitle}>
+              {searchQuery ? `No results for "${searchQuery}"` : "You haven't performed any inspections yet."}
+            </Text>
+            <TouchableOpacity 
+              style={styles.startBtn}
+              onPress={() => router.push('/(tabs)/camera')}
+            >
+              <Text style={styles.startBtnText}>Start New Inspection</Text>
+            </TouchableOpacity>
+          </Animated.View>
         </View>
       ) : (
         <FlatList
-          data={inspections}
+          data={filteredInspections}
           renderItem={renderItem}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.list}
+          showsVerticalScrollIndicator={false}
           refreshControl={
-            <RefreshControl refreshing={isLoading} onRefresh={onRefresh} tintColor="#f4511e" />
+            <RefreshControl refreshing={isLoading} onRefresh={onRefresh} tintColor="#4F46E5" />
           }
         />
       )}
@@ -102,93 +171,226 @@ export default function History() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#F8FAFC',
   },
-  list: {
-    padding: 24,
-  },
-  card: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 20,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: '#F1F3F5',
+  header: {
+    paddingTop: Platform.OS === 'ios' ? 60 : 40,
+    paddingHorizontal: 24,
+    paddingBottom: 24,
+    backgroundColor: '#fff',
+    borderBottomLeftRadius: 32,
+    borderBottomRightRadius: 32,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.03,
+    shadowOpacity: 0.05,
     shadowRadius: 10,
     elevation: 2,
   },
-  cardLeft: {
+  headerTitle: {
+    fontSize: 28,
+    fontWeight: '800',
+    color: '#1E293B',
+    marginBottom: 20,
+  },
+  searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  searchBar: {
     flex: 1,
+    height: 48,
+    backgroundColor: '#F1F5F9',
+    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    marginRight: 12,
+  },
+  searchInput: {
+    flex: 1,
+    marginLeft: 10,
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#1E293B',
+  },
+  filterBtn: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    backgroundColor: '#EEF2FF',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  list: {
+    padding: 24,
+    paddingBottom: 40,
+  },
+  card: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 24,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#F1F5F9',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.04,
+    shadowRadius: 15,
+    elevation: 4,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
   },
   thumbnailContainer: {
+    position: 'relative',
     marginRight: 16,
   },
   thumbnail: {
-    width: 60,
-    height: 60,
-    borderRadius: 12,
-    backgroundColor: '#F8F9FA',
+    width: 64,
+    height: 64,
+    borderRadius: 16,
+    backgroundColor: '#F1F5F9',
   },
   placeholderThumbnail: {
-    width: 60,
-    height: 60,
-    borderRadius: 12,
-    backgroundColor: '#F8F9FA',
+    width: 64,
+    height: 64,
+    borderRadius: 16,
+    backgroundColor: '#F8FAFC',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#F1F3F5',
+    borderColor: '#F1F5F9',
+  },
+  statusMiniBadge: {
+    position: 'absolute',
+    bottom: -2,
+    right: -2,
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    borderWidth: 2,
+    borderColor: '#fff',
+  },
+  cardInfo: {
+    flex: 1,
   },
   vehicleName: {
     fontSize: 17,
-    fontWeight: '700',
-    color: '#1A1A1A',
-    letterSpacing: -0.5,
+    fontWeight: '800',
+    color: '#1E293B',
+    marginBottom: 4,
   },
-  date: {
-    fontSize: 13,
-    color: '#999',
-    marginTop: 4,
-    fontWeight: '500',
-  },
-  cardRight: {
+  dateRow: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  dateText: {
+    fontSize: 12,
+    color: '#94A3B8',
+    marginLeft: 6,
+    fontWeight: '600',
   },
   statusBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8F9FA',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 10,
-    marginRight: 10,
-    borderWidth: 1,
-    borderColor: '#F1F3F5',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
   },
   statusText: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: '800',
-    marginLeft: 6,
-    letterSpacing: 0.5,
+    marginLeft: 4,
+  },
+  cardFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderTopWidth: 1,
+    borderTopColor: '#F1F5F9',
+    paddingTop: 16,
+  },
+  detailsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  detailItem: {
+    alignItems: 'flex-start',
+  },
+  detailLabel: {
+    fontSize: 10,
+    color: '#94A3B8',
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    marginBottom: 2,
+  },
+  detailValue: {
+    fontSize: 13,
+    color: '#1E293B',
+    fontWeight: '700',
+  },
+  detailDivider: {
+    width: 1,
+    height: 20,
+    backgroundColor: '#E2E8F0',
+    marginHorizontal: 16,
+  },
+  viewAction: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  viewText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#4F46E5',
+    marginRight: 4,
   },
   centered: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    padding: 40,
   },
-  emptyText: {
-    marginTop: 20,
-    fontSize: 16,
-    color: '#999',
-    fontWeight: '500',
+  emptyStateContainer: {
+    alignItems: 'center',
+    width: '100%',
+  },
+  emptyIconContainer: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 24,
+    borderWidth: 2,
+    borderStyle: 'dashed',
+    borderColor: '#E2E8F0',
+  },
+  emptyTitle: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: '#1E293B',
+    marginBottom: 8,
+  },
+  emptySubtitle: {
+    fontSize: 14,
+    color: '#64748B',
+    textAlign: 'center',
+    lineHeight: 20,
+    marginBottom: 32,
+  },
+  startBtn: {
+    backgroundColor: '#1E293B',
+    paddingHorizontal: 24,
+    paddingVertical: 14,
+    borderRadius: 16,
+  },
+  startBtnText: {
+    color: '#fff',
+    fontSize: 15,
+    fontWeight: '700',
   },
 });

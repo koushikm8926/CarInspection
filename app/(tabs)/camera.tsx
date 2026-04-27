@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, TextInput, ActivityIndicator, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useInspectionStore } from '../../src/store/useInspectionStore';
 import { useAuthStore } from '../../src/store/useAuthStore';
-import { Play } from 'lucide-react-native';
+import { Play, Sparkles, Lightbulb, Zap, ShieldCheck } from 'lucide-react-native';
+import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function StartInspection() {
   const [vehicleName, setVehicleName] = useState('');
@@ -28,97 +30,211 @@ export default function StartInspection() {
     }
   };
 
-  return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>New Inspection</Text>
-        <Text style={styles.subtitle}>Enter the vehicle details to begin</Text>
+  const TipItem = ({ icon: Icon, text, color }: any) => (
+    <View style={styles.tipItem}>
+      <View style={[styles.tipIcon, { backgroundColor: color + '15' }]}>
+        <Icon size={18} color={color} />
       </View>
-
-      <View style={styles.form}>
-        <TextInput
-          style={styles.input}
-          placeholder="Vehicle Name (e.g., Toyota Camry 2024)"
-          value={vehicleName}
-          onChangeText={setVehicleName}
-          placeholderTextColor="#999"
-        />
-
-        <TouchableOpacity 
-          style={[styles.button, !vehicleName && styles.buttonDisabled]} 
-          onPress={handleStart}
-          disabled={!vehicleName || loading}
-        >
-          {loading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <>
-              <Text style={styles.buttonText}>Start Inspection</Text>
-              <Play size={20} color="#fff" style={{ marginLeft: 8 }} />
-            </>
-          )}
-        </TouchableOpacity>
-      </View>
+      <Text style={styles.tipText}>{text}</Text>
     </View>
+  );
+
+  return (
+    <KeyboardAvoidingView 
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={styles.container}
+    >
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+        <Animated.View entering={FadeInDown.duration(600)} style={styles.header}>
+          <View style={styles.iconCircle}>
+            <Sparkles size={32} color="#4F46E5" />
+          </View>
+          <Text style={styles.title}>New Inspection</Text>
+          <Text style={styles.subtitle}>Ready to evaluate another vehicle? Let's get the basic details first.</Text>
+        </Animated.View>
+
+        <Animated.View entering={FadeInDown.delay(200).duration(600)} style={styles.form}>
+          <Text style={styles.label}>Vehicle Information</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="e.g. 2024 Tesla Model 3"
+            value={vehicleName}
+            onChangeText={setVehicleName}
+            placeholderTextColor="#94A3B8"
+          />
+
+          <TouchableOpacity 
+            style={[styles.button, !vehicleName && styles.buttonDisabled]} 
+            onPress={handleStart}
+            disabled={!vehicleName || loading}
+          >
+            {loading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <LinearGradient
+                colors={vehicleName ? ['#4F46E5', '#6366F1'] : ['#E2E8F0', '#E2E8F0']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.buttonGradient}
+              >
+                <Text style={styles.buttonText}>Begin Inspection</Text>
+                <Play size={20} color="#fff" style={{ marginLeft: 8 }} />
+              </LinearGradient>
+            )}
+          </TouchableOpacity>
+        </Animated.View>
+
+        <Animated.View entering={FadeInUp.delay(400).duration(600)} style={styles.tipsSection}>
+          <View style={styles.tipsHeader}>
+            <Lightbulb size={20} color="#F59E0B" />
+            <Text style={styles.tipsTitle}>Inspection Pro-Tips</Text>
+          </View>
+          
+          <TipItem 
+            icon={Zap} 
+            text="Ensure the vehicle is in a well-lit area for clear photos." 
+            color="#F59E0B"
+          />
+          <TipItem 
+            icon={ShieldCheck} 
+            text="Keep the camera steady to pass automatic quality checks." 
+            color="#10B981"
+          />
+          <TipItem 
+            icon={Sparkles} 
+            text="Follow the on-screen guides for the best perspectives." 
+            color="#6366F1"
+          />
+        </Animated.View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
-    padding: 32,
+    backgroundColor: '#F8FAFC',
+  },
+  scrollContent: {
+    padding: 24,
+    paddingTop: 60,
   },
   header: {
-    marginTop: 40,
-    marginBottom: 48,
+    alignItems: 'center',
+    marginBottom: 40,
+  },
+  iconCircle: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#EEF2FF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
   },
   title: {
-    fontSize: 40,
+    fontSize: 32,
     fontWeight: '800',
-    color: '#1A1A1A',
+    color: '#1E293B',
     letterSpacing: -1,
   },
   subtitle: {
-    fontSize: 18,
-    color: '#666',
+    fontSize: 16,
+    color: '#64748B',
+    textAlign: 'center',
     marginTop: 12,
     lineHeight: 24,
+    paddingHorizontal: 20,
   },
   form: {
-    width: '100%',
-  },
-  input: {
-    backgroundColor: '#F8F9FA',
-    height: 72,
-    borderRadius: 20,
-    paddingHorizontal: 24,
-    fontSize: 18,
-    color: '#1A1A1A',
-    fontWeight: '600',
-    borderWidth: 1,
-    borderColor: '#F1F3F5',
-    marginBottom: 32,
-  },
-  button: {
-    backgroundColor: '#1A1A1A',
-    height: 72,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexDirection: 'row',
+    backgroundColor: '#fff',
+    padding: 24,
+    borderRadius: 32,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.15,
+    shadowOpacity: 0.05,
     shadowRadius: 20,
-    elevation: 8,
+    elevation: 4,
+    marginBottom: 32,
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#1E293B',
+    marginBottom: 12,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  input: {
+    backgroundColor: '#F1F5F9',
+    height: 64,
+    borderRadius: 16,
+    paddingHorizontal: 20,
+    fontSize: 16,
+    color: '#1E293B',
+    fontWeight: '600',
+    marginBottom: 24,
+  },
+  button: {
+    height: 64,
+    borderRadius: 16,
+    overflow: 'hidden',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   buttonDisabled: {
-    backgroundColor: '#F1F3F5',
+    opacity: 0.5,
+  },
+  buttonGradient: {
+    width: '100%',
+    height: '100%',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   buttonText: {
     color: '#fff',
-    fontSize: 20,
+    fontSize: 18,
+    fontWeight: '700',
+  },
+  tipsSection: {
+    padding: 24,
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+    borderRadius: 32,
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    borderColor: '#CBD5E1',
+  },
+  tipsHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  tipsTitle: {
+    fontSize: 18,
     fontWeight: '800',
+    color: '#1E293B',
+    marginLeft: 10,
+  },
+  tipItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  tipIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  tipText: {
+    flex: 1,
+    fontSize: 14,
+    color: '#64748B',
+    fontWeight: '500',
+    lineHeight: 20,
   },
 });

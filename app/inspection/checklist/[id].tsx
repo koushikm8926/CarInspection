@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, ActivityIndicator, Alert, Platform } from 'react-native';
 import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router';
-import { CheckCircle2, Circle, ChevronRight, Camera, ArrowLeft } from 'lucide-react-native';
+import { CheckCircle2, Circle, ChevronRight, Camera, ArrowLeft, Info, Trophy } from 'lucide-react-native';
 import { INSPECTION_STEPS, InspectionStep } from '../../../src/constants/inspectionSteps';
 import { databaseService, PhotoRecord } from '../../../src/services/databaseService';
 import { useInspectionStore } from '../../../src/store/useInspectionStore';
+import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function InspectionChecklist() {
   const { id } = useLocalSearchParams();
@@ -65,58 +67,103 @@ export default function InspectionChecklist() {
   const completedCount = photos.length;
   const totalCount = INSPECTION_STEPS.length;
   const progress = totalCount > 0 ? completedCount / totalCount : 0;
+  const isFinished = progress === 1;
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <ArrowLeft size={24} color="#1A1A1A" />
-        </TouchableOpacity>
-        <Text style={styles.title}>Inspection Checklist</Text>
-        <View style={styles.progressContainer}>
-          <View style={styles.progressBar}>
-            <View style={[styles.progressFill, { width: `${progress * 100}%` }]} />
+        <View style={styles.navRow}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <ArrowLeft size={24} color="#1E293B" />
+          </TouchableOpacity>
+          <View style={styles.headerBadge}>
+            <Text style={styles.badgeText}>IN PROGRESS</Text>
           </View>
-          <Text style={styles.progressText}>{completedCount} of {totalCount} steps completed</Text>
         </View>
+        
+        <Text style={styles.title}>Inspection Checklist</Text>
+        
+        <Animated.View entering={FadeInDown.duration(800)} style={styles.progressCard}>
+          <LinearGradient
+            colors={['#4F46E5', '#6366F1']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.progressGradient}
+          >
+            <View style={styles.progressHeader}>
+              <View style={styles.progressTextGroup}>
+                <Text style={styles.progressPercentage}>{Math.round(progress * 100)}%</Text>
+                <Text style={styles.progressLabel}>Completed</Text>
+              </View>
+              {isFinished ? (
+                <Trophy size={32} color="#fff" />
+              ) : (
+                <View style={styles.countBadge}>
+                  <Text style={styles.countText}>{completedCount}/{totalCount}</Text>
+                </View>
+              )}
+            </View>
+            <View style={styles.progressBar}>
+              <View style={[styles.progressFill, { width: `${progress * 100}%` }]} />
+            </View>
+          </LinearGradient>
+        </Animated.View>
       </View>
 
-      <ScrollView style={styles.stepsList} contentContainerStyle={styles.stepsContent}>
-        {INSPECTION_STEPS.map((step) => {
+      <ScrollView showsVerticalScrollIndicator={false} style={styles.stepsList} contentContainerStyle={styles.stepsContent}>
+        {INSPECTION_STEPS.map((step, index) => {
           const completed = isStepCompleted(step.id);
           return (
-            <TouchableOpacity 
+            <Animated.View 
               key={step.id} 
-              style={[styles.stepItem, completed && styles.stepItemCompleted]}
-              onPress={() => handleStepPress(step)}
+              entering={FadeInDown.delay(index * 100).duration(600)}
             >
-              <View style={styles.stepInfo}>
-                <View style={[styles.iconContainer, completed && styles.iconContainerCompleted]}>
-                  {completed ? (
-                    <CheckCircle2 size={24} color="#34C759" />
-                  ) : (
-                    <Circle size={24} color="#999" />
-                  )}
+              <TouchableOpacity 
+                style={[styles.stepItem, completed && styles.stepItemCompleted]}
+                onPress={() => handleStepPress(step)}
+              >
+                <View style={styles.stepInfo}>
+                  <View style={[styles.iconBox, completed && styles.iconBoxCompleted]}>
+                    {completed ? (
+                      <CheckCircle2 size={24} color="#10B981" />
+                    ) : (
+                      <Camera size={24} color="#94A3B8" />
+                    )}
+                  </View>
+                  <View style={styles.textContainer}>
+                    <Text style={[styles.stepLabel, completed && styles.stepLabelCompleted]}>
+                      {step.label} {step.required && <Text style={styles.requiredMark}>*</Text>}
+                    </Text>
+                    <Text style={styles.stepDescription} numberOfLines={1}>{step.description}</Text>
+                  </View>
                 </View>
-                <View style={styles.textContainer}>
-                  <Text style={[styles.stepLabel, completed && styles.stepLabelCompleted]}>
-                    {step.label} {step.required && <Text style={styles.requiredText}>*</Text>}
-                  </Text>
-                  <Text style={styles.stepDescription}>{step.description}</Text>
-                </View>
-              </View>
-              <ChevronRight size={20} color="#CCC" />
-            </TouchableOpacity>
+                <ChevronRight size={20} color={completed ? "#10B981" : "#CBD5E1"} />
+              </TouchableOpacity>
+            </Animated.View>
           );
         })}
       </ScrollView>
 
       <View style={styles.footer}>
+        <View style={styles.helperTextRow}>
+          <Info size={14} color="#64748B" />
+          <Text style={styles.helperText}>Complete all required steps to finish</Text>
+        </View>
         <TouchableOpacity 
-          style={[styles.finishButton, completedCount === 0 && styles.finishButtonDisabled]} 
+          style={[styles.finishButton, !isFinished && styles.finishButtonDisabled]} 
           onPress={handleFinish}
+          disabled={!isFinished}
         >
-          <Text style={styles.finishButtonText}>Complete Inspection</Text>
+          <LinearGradient
+            colors={isFinished ? ['#1E293B', '#334155'] : ['#E2E8F0', '#E2E8F0']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.finishGradient}
+          >
+            <Text style={[styles.finishButtonText, !isFinished && styles.finishButtonTextDisabled]}>
+              Complete Inspection
+            </Text>
+          </LinearGradient>
         </TouchableOpacity>
       </View>
     </View>
@@ -126,7 +173,7 @@ export default function InspectionChecklist() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: '#F8FAFC',
   },
   loadingContainer: {
     flex: 1,
@@ -135,116 +182,202 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: '#FFF',
-    paddingTop: 60,
+    paddingTop: Platform.OS === 'ios' ? 60 : 40,
     paddingHorizontal: 24,
     paddingBottom: 24,
-    borderBottomWidth: 1,
-    borderBottomColor: '#EEE',
+    borderBottomLeftRadius: 32,
+    borderBottomRightRadius: 32,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 2,
+  },
+  navRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
   },
   backButton: {
-    marginBottom: 16,
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    backgroundColor: '#F1F5F9',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  headerBadge: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: '#EEF2FF',
+    borderRadius: 8,
+  },
+  badgeText: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#4F46E5',
+    letterSpacing: 0.5,
   },
   title: {
     fontSize: 28,
     fontWeight: '800',
-    color: '#1A1A1A',
+    color: '#1E293B',
+    marginBottom: 24,
+  },
+  progressCard: {
+    borderRadius: 24,
+    overflow: 'hidden',
+    shadowColor: '#4F46E5',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 15,
+    elevation: 8,
+  },
+  progressGradient: {
+    padding: 20,
+  },
+  progressHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 16,
   },
-  progressContainer: {
-    marginTop: 8,
+  progressTextGroup: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+  },
+  progressPercentage: {
+    fontSize: 32,
+    fontWeight: '800',
+    color: '#fff',
+  },
+  progressLabel: {
+    fontSize: 14,
+    color: 'rgba(255,255,255,0.8)',
+    fontWeight: '600',
+    marginLeft: 8,
+  },
+  countBadge: {
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 10,
+  },
+  countText: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 14,
   },
   progressBar: {
     height: 8,
-    backgroundColor: '#EEE',
+    backgroundColor: 'rgba(255,255,255,0.2)',
     borderRadius: 4,
     overflow: 'hidden',
-    marginBottom: 8,
   },
   progressFill: {
     height: '100%',
-    backgroundColor: '#4F46E5',
+    backgroundColor: '#fff',
     borderRadius: 4,
-  },
-  progressText: {
-    fontSize: 14,
-    color: '#666',
-    fontWeight: '600',
   },
   stepsList: {
     flex: 1,
   },
   stepsContent: {
     padding: 24,
+    paddingBottom: 40,
   },
   stepItem: {
     backgroundColor: '#FFF',
-    borderRadius: 16,
-    padding: 20,
+    borderRadius: 20,
+    padding: 16,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    elevation: 2,
+    borderWidth: 1,
+    borderColor: '#F1F5F9',
   },
   stepItemCompleted: {
-    backgroundColor: '#F0FDF4',
-    borderColor: '#DCFCE7',
-    borderWidth: 1,
+    backgroundColor: '#ECFDF5',
+    borderColor: '#D1FAE5',
   },
   stepInfo: {
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
   },
-  iconContainer: {
+  iconBox: {
+    width: 48,
+    height: 48,
+    borderRadius: 14,
+    backgroundColor: '#F8FAFC',
+    justifyContent: 'center',
+    alignItems: 'center',
     marginRight: 16,
   },
-  iconContainerCompleted: {
-    // Styling for completed icon
+  iconBoxCompleted: {
+    backgroundColor: '#fff',
   },
   textContainer: {
     flex: 1,
   },
   stepLabel: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '700',
-    color: '#1A1A1A',
+    color: '#1E293B',
     marginBottom: 4,
   },
   stepLabelCompleted: {
-    color: '#166534',
+    color: '#065F46',
   },
   stepDescription: {
-    fontSize: 14,
-    color: '#666',
-    lineHeight: 20,
+    fontSize: 12,
+    color: '#64748B',
+    fontWeight: '500',
   },
-  requiredText: {
+  requiredMark: {
     color: '#EF4444',
   },
   footer: {
     padding: 24,
+    paddingBottom: Platform.OS === 'ios' ? 40 : 24,
     backgroundColor: '#FFF',
     borderTopWidth: 1,
-    borderTopColor: '#EEE',
+    borderTopColor: '#F1F5F9',
+  },
+  helperTextRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  helperText: {
+    fontSize: 12,
+    color: '#64748B',
+    marginLeft: 6,
+    fontWeight: '500',
   },
   finishButton: {
-    backgroundColor: '#1A1A1A',
     height: 64,
     borderRadius: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
+    overflow: 'hidden',
   },
   finishButtonDisabled: {
-    backgroundColor: '#EEE',
+    opacity: 0.5,
+  },
+  finishGradient: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   finishButtonText: {
     color: '#FFF',
     fontSize: 18,
-    fontWeight: '700',
+    fontWeight: '800',
+  },
+  finishButtonTextDisabled: {
+    color: '#94A3B8',
   },
 });

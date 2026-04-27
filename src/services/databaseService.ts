@@ -20,8 +20,131 @@ export interface PhotoRecord {
   metadata: string; // JSON string
 }
 
+// Singleton database connection
+let dbInstance: SQLite.SQLiteDatabase | null = null;
+
+export const databaseService = {
+  async getDb() {
+    if (!dbInstance) {
+      dbInstance = await SQLite.openDatabaseAsync(dbName);
+    }
+    return dbInstance;
+  },
+
+  // Inspection Methods
+  async createInspection(inspection: InspectionRecord) {
+    const db = await this.getDb();
+    try {
+      await db.runAsync(
+        'INSERT INTO inspections (id, userId, vehicleName, status, data) VALUES (?, ?, ?, ?, ?)',
+        [
+          inspection.id || '',
+          inspection.userId || '',
+          inspection.vehicleName || '',
+          inspection.status || 'draft',
+          inspection.data || '{}'
+        ]
+      );
+    } catch (error) {
+      console.error('Database Error: Failed to create inspection', error);
+      throw error;
+    }
+  },
+
+  async getInspections(userId: string) {
+    const db = await this.getDb();
+    try {
+      return await db.getAllAsync<InspectionRecord>(
+        'SELECT * FROM inspections WHERE userId = ? ORDER BY createdAt DESC',
+        [userId]
+      );
+    } catch (error) {
+      console.error('Database Error: Failed to get inspections', error);
+      return [];
+    }
+  },
+
+  async updateInspectionStatus(id: string, status: string) {
+    const db = await this.getDb();
+    try {
+      await db.runAsync('UPDATE inspections SET status = ? WHERE id = ?', [status, id]);
+    } catch (error) {
+      console.error('Database Error: Failed to update inspection status', error);
+      throw error;
+    }
+  },
+
+  // Photo Methods
+  async addPhoto(photo: PhotoRecord) {
+    const db = await this.getDb();
+    try {
+      await db.runAsync(
+        'INSERT INTO photos (id, inspectionId, uri, type, status, metadata) VALUES (?, ?, ?, ?, ?, ?)',
+        [
+          photo.id || '',
+          photo.inspectionId || '',
+          photo.uri || '',
+          photo.type || '',
+          photo.status || 'pending',
+          photo.metadata || '{}'
+        ]
+      );
+    } catch (error) {
+      console.error('Database Error: Failed to add photo', error);
+      throw error;
+    }
+  },
+
+  async getPhotos(inspectionId: string) {
+    const db = await this.getDb();
+    try {
+      return await db.getAllAsync<PhotoRecord>(
+        'SELECT * FROM photos WHERE inspectionId = ?',
+        [inspectionId]
+      );
+    } catch (error) {
+      console.error('Database Error: Failed to get photos', error);
+      return [];
+    }
+  },
+
+  // Vehicle Methods
+  async getVehicles(userId: string) {
+    const db = await this.getDb();
+    try {
+      return await db.getAllAsync(
+        'SELECT * FROM vehicles WHERE userId = ? ORDER BY createdAt DESC',
+        [userId]
+      );
+    } catch (error) {
+      console.error('Database Error: Failed to get vehicles', error);
+      return [];
+    }
+  },
+
+  async addVehicle(vehicle: { id: string; userId: string; make: string; model: string; year: string; plate: string }) {
+    const db = await this.getDb();
+    try {
+      await db.runAsync(
+        'INSERT INTO vehicles (id, userId, make, model, year, plate) VALUES (?, ?, ?, ?, ?, ?)',
+        [
+          vehicle.id || '',
+          vehicle.userId || '',
+          vehicle.make || '',
+          vehicle.model || '',
+          vehicle.year || '',
+          vehicle.plate || ''
+        ]
+      );
+    } catch (error) {
+      console.error('Database Error: Failed to add vehicle', error);
+      throw error;
+    }
+  }
+};
+
 export const initDatabase = async () => {
-  const db = await SQLite.openDatabaseAsync(dbName);
+  const db = await databaseService.getDb();
 
   await db.execAsync(`
     PRAGMA journal_mode = WAL;
@@ -65,66 +188,4 @@ export const initDatabase = async () => {
   `);
 
   return db;
-};
-
-export const databaseService = {
-  async getDb() {
-    return await SQLite.openDatabaseAsync(dbName);
-  },
-
-  // Inspection Methods
-  async createInspection(inspection: InspectionRecord) {
-    const db = await this.getDb();
-    await db.runAsync(
-      'INSERT INTO inspections (id, userId, vehicleName, status, data) VALUES (?, ?, ?, ?, ?)',
-      [inspection.id, inspection.userId, inspection.vehicleName, inspection.status, inspection.data]
-    );
-  },
-
-  async getInspections(userId: string) {
-    const db = await this.getDb();
-    return await db.getAllAsync<InspectionRecord>(
-      'SELECT * FROM inspections WHERE userId = ? ORDER BY createdAt DESC',
-      [userId]
-    );
-  },
-
-  async updateInspectionStatus(id: string, status: string) {
-    const db = await this.getDb();
-    await db.runAsync('UPDATE inspections SET status = ? WHERE id = ?', [status, id]);
-  },
-
-  // Photo Methods
-  async addPhoto(photo: PhotoRecord) {
-    const db = await this.getDb();
-    await db.runAsync(
-      'INSERT INTO photos (id, inspectionId, uri, type, status, metadata) VALUES (?, ?, ?, ?, ?, ?)',
-      [photo.id, photo.inspectionId, photo.uri, photo.type, photo.status, photo.metadata]
-    );
-  },
-
-  async getPhotos(inspectionId: string) {
-    const db = await this.getDb();
-    return await db.getAllAsync<PhotoRecord>(
-      'SELECT * FROM photos WHERE inspectionId = ?',
-      [inspectionId]
-    );
-  },
-
-  // Vehicle Methods
-  async getVehicles(userId: string) {
-    const db = await this.getDb();
-    return await db.getAllAsync(
-      'SELECT * FROM vehicles WHERE userId = ? ORDER BY createdAt DESC',
-      [userId]
-    );
-  },
-
-  async addVehicle(vehicle: { id: string; userId: string; make: string; model: string; year: string; plate: string }) {
-    const db = await this.getDb();
-    await db.runAsync(
-      'INSERT INTO vehicles (id, userId, make, model, year, plate) VALUES (?, ?, ?, ?, ?, ?)',
-      [vehicle.id, vehicle.userId, vehicle.make, vehicle.model, vehicle.year, vehicle.plate]
-    );
-  }
 };
