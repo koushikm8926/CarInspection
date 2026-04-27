@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, ActivityIndicator, Alert, Platform } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, ActivityIndicator, Alert, Platform, Image } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router';
 import { CheckCircle2, Circle, ChevronRight, Camera, ArrowLeft, Info, Trophy } from 'lucide-react-native';
@@ -34,8 +34,12 @@ export default function InspectionChecklist() {
     }, [id])
   );
 
+  const getStepPhoto = (stepId: string) => {
+    return photos.find(p => p.type === stepId);
+  };
+
   const isStepCompleted = (stepId: string) => {
-    return photos.some(p => p.type === stepId);
+    return !!getStepPhoto(stepId);
   };
 
   const handleStepPress = (step: InspectionStep) => {
@@ -127,7 +131,7 @@ export default function InspectionChecklist() {
                 <View style={styles.stepInfo}>
                   <View style={[styles.iconBox, completed && styles.iconBoxCompleted]}>
                     {completed ? (
-                      <CheckCircle2 size={24} color="#10B981" />
+                      <Image source={{ uri: getStepPhoto(step.id)?.uri }} style={styles.stepThumbnail} />
                     ) : (
                       <Camera size={24} color="#94A3B8" />
                     )}
@@ -139,7 +143,13 @@ export default function InspectionChecklist() {
                     <Text style={styles.stepDescription} numberOfLines={1}>{step.description}</Text>
                   </View>
                 </View>
-                <ChevronRight size={20} color={completed ? "#10B981" : "#CBD5E1"} />
+                {completed ? (
+                  <View style={styles.completedBadge}>
+                    <CheckCircle2 size={16} color="#10B981" />
+                  </View>
+                ) : (
+                  <ChevronRight size={20} color="#CBD5E1" />
+                )}
               </TouchableOpacity>
             </Animated.View>
           );
@@ -316,6 +326,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 16,
+    overflow: 'hidden',
+  },
+  stepThumbnail: {
+    width: '100%',
+    height: '100%',
+  },
+  completedBadge: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   iconBoxCompleted: {
     backgroundColor: '#fff',

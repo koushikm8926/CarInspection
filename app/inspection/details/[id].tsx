@@ -1,8 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, ActivityIndicator, Platform, Dimensions } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { databaseService, InspectionRecord, PhotoRecord } from '../../../src/services/databaseService';
-import { CheckCircle2, Clock, MapPin, Calendar, User, ArrowLeft } from 'lucide-react-native';
+import { CheckCircle2, Clock, MapPin, Calendar, User, ArrowLeft, Car, Shield, Hash, Image as ImageIcon, ChevronRight } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
+import { LinearGradient } from 'expo-linear-gradient';
+
+const { width } = Dimensions.get('window');
+const PHOTO_SIZE = (width - 64) / 2;
 
 export default function InspectionDetails() {
   const { id } = useLocalSearchParams();
@@ -10,6 +16,7 @@ export default function InspectionDetails() {
   const [photos, setPhotos] = useState<PhotoRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     const loadData = async () => {
@@ -36,7 +43,7 @@ export default function InspectionDetails() {
   if (loading) {
     return (
       <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#f4511e" />
+        <ActivityIndicator size="large" color="#4F46E5" />
       </View>
     );
   }
@@ -44,69 +51,107 @@ export default function InspectionDetails() {
   if (!inspection) {
     return (
       <View style={styles.centered}>
-        <Text>Inspection not found</Text>
+        <Text style={styles.errorText}>Inspection not found</Text>
+        <TouchableOpacity style={styles.backLink} onPress={() => router.back()}>
+          <Text style={styles.backLinkText}>Go Back</Text>
+        </TouchableOpacity>
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <ArrowLeft color="#fff" size={24} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Inspection Details</Text>
+      <View style={[styles.header, { paddingTop: insets.top + 20 }]}>
+        <View style={styles.navRow}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <ArrowLeft size={24} color="#1E293B" />
+          </TouchableOpacity>
+          <View style={styles.headerBadge}>
+            <Shield size={12} color="#10B981" />
+            <Text style={styles.badgeText}>VERIFIED REPORT</Text>
+          </View>
+        </View>
+        <Text style={styles.title}>Inspection Report</Text>
       </View>
 
-      <ScrollView style={styles.content}>
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Vehicle Information</Text>
-          <View style={styles.infoCard}>
-            <View style={styles.infoRow}>
-              <User size={18} color="#999" />
-              <Text style={styles.infoLabel}>Owner ID:</Text>
-              <Text style={styles.infoValue}>{inspection.userId}</Text>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+        {/* Info Card */}
+        <Animated.View entering={FadeInDown.duration(600)} style={styles.infoCard}>
+          <View style={styles.vehicleHeader}>
+            <View style={styles.iconBox}>
+              <Car size={32} color="#4F46E5" />
             </View>
-            <View style={styles.infoRow}>
-              <MapPin size={18} color="#999" />
-              <Text style={styles.infoLabel}>Vehicle:</Text>
-              <Text style={styles.infoValue}>{inspection.vehicleName}</Text>
-            </View>
-            <View style={styles.infoRow}>
-              <Calendar size={18} color="#999" />
-              <Text style={styles.infoLabel}>Date:</Text>
-              <Text style={styles.infoValue}>{new Date(inspection.createdAt).toLocaleString()}</Text>
-            </View>
-            <View style={styles.infoRow}>
-              {inspection.status === 'uploaded' ? (
-                <CheckCircle2 size={18} color="#34c759" />
-              ) : (
-                <Clock size={18} color="#ff9500" />
-              )}
-              <Text style={styles.infoLabel}>Status:</Text>
-              <Text style={[styles.infoValue, { color: inspection.status === 'uploaded' ? '#34c759' : '#ff9500' }]}>
-                {inspection.status.toUpperCase()}
-              </Text>
+            <View style={styles.vehicleMainInfo}>
+              <Text style={styles.vehicleName}>{inspection.vehicleName || 'Untitled Vehicle'}</Text>
+              <View style={styles.statusRow}>
+                <View style={[styles.statusIndicator, { backgroundColor: inspection.status === 'uploaded' ? '#10B981' : '#F59E0B' }]} />
+                <Text style={styles.statusLabel}>{inspection.status.toUpperCase()}</Text>
+              </View>
             </View>
           </View>
+
+          <View style={styles.divider} />
+
+          <View style={styles.metaGrid}>
+            <View style={styles.metaItem}>
+              <Text style={styles.metaLabel}>DATE</Text>
+              <View style={styles.metaValueRow}>
+                <Calendar size={14} color="#64748B" />
+                <Text style={styles.metaValue}>{new Date(inspection.createdAt).toLocaleDateString()}</Text>
+              </View>
+            </View>
+            <View style={styles.metaItem}>
+              <Text style={styles.metaLabel}>INSPECTOR ID</Text>
+              <View style={styles.metaValueRow}>
+                <User size={14} color="#64748B" />
+                <Text style={styles.metaValue}>#{inspection.userId.substring(0, 8)}</Text>
+              </View>
+            </View>
+          </View>
+        </Animated.View>
+
+        {/* Photos Section */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Captured Photos</Text>
+            <View style={styles.photoCountBadge}>
+              <Text style={styles.photoCountText}>{photos.length}</Text>
+            </View>
+          </View>
+
+          {photos.length > 0 ? (
+            <View style={styles.photoGrid}>
+              {photos.map((photo, index) => (
+                <Animated.View 
+                  key={photo.id} 
+                  entering={FadeInUp.delay(index * 100).duration(500)}
+                  style={styles.photoContainer}
+                >
+                  <TouchableOpacity style={styles.photoWrapper} activeOpacity={0.9}>
+                    <Image source={{ uri: photo.uri }} style={styles.photo} />
+                    <LinearGradient
+                      colors={['transparent', 'rgba(0,0,0,0.7)']}
+                      style={styles.photoOverlay}
+                    >
+                      <Text style={styles.photoType}>{photo.type.replace('_', ' ')}</Text>
+                    </LinearGradient>
+                  </TouchableOpacity>
+                </Animated.View>
+              ))}
+            </View>
+          ) : (
+            <View style={styles.emptyPhotos}>
+              <ImageIcon size={48} color="#CBD5E1" />
+              <Text style={styles.emptyPhotosText}>No photos were captured for this inspection.</Text>
+            </View>
+          )}
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Captured Photos ({photos.length})</Text>
-          <View style={styles.photoGrid}>
-            {photos.map((photo) => (
-              <View key={photo.id} style={styles.photoCard}>
-                <Image source={{ uri: photo.uri }} style={styles.photo} />
-                <View style={styles.photoLabel}>
-                  <Text style={styles.photoTypeText}>{photo.type.replace('_', ' ')}</Text>
-                </View>
-              </View>
-            ))}
-            {photos.length === 0 && (
-              <Text style={styles.emptyText}>No photos captured yet</Text>
-            )}
-          </View>
-        </View>
+        {/* Actions */}
+        <TouchableOpacity style={styles.exportButton}>
+          <Text style={styles.exportButtonText}>Export PDF Report</Text>
+          <ChevronRight size={20} color="#fff" />
+        </TouchableOpacity>
       </ScrollView>
     </View>
   );
@@ -115,96 +160,257 @@ export default function InspectionDetails() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#F8FAFC',
+  },
+  centered: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 40,
   },
   header: {
-    height: 100,
-    backgroundColor: '#4F46E5',
+    backgroundColor: '#FFF',
+    paddingHorizontal: 24,
+    paddingBottom: 24,
+    borderBottomLeftRadius: 32,
+    borderBottomRightRadius: 32,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 2,
+  },
+  navRow: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 40,
+    marginBottom: 20,
   },
   backButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    backgroundColor: '#F1F5F9',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  headerBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: '#ECFDF5',
+    borderRadius: 8,
+  },
+  badgeText: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#10B981',
+    marginLeft: 6,
+    letterSpacing: 0.5,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: '800',
+    color: '#1E293B',
+  },
+  scrollContent: {
+    padding: 24,
+    paddingBottom: 40,
+  },
+  infoCard: {
+    backgroundColor: '#FFF',
+    borderRadius: 24,
+    padding: 24,
+    marginBottom: 32,
+    borderWidth: 1,
+    borderColor: '#F1F5F9',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.04,
+    shadowRadius: 15,
+    elevation: 4,
+  },
+  vehicleHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  iconBox: {
+    width: 64,
+    height: 64,
+    borderRadius: 16,
+    backgroundColor: '#EEF2FF',
+    justifyContent: 'center',
+    alignItems: 'center',
     marginRight: 16,
   },
-  headerTitle: {
-    color: '#fff',
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  content: {
+  vehicleMainInfo: {
     flex: 1,
-    padding: 20,
+  },
+  vehicleName: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: '#1E293B',
+    marginBottom: 4,
+  },
+  statusRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  statusIndicator: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginRight: 6,
+  },
+  statusLabel: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#64748B',
+  },
+  divider: {
+    height: 1,
+    backgroundColor: '#F1F5F9',
+    marginBottom: 20,
+  },
+  metaGrid: {
+    flexDirection: 'row',
+  },
+  metaItem: {
+    flex: 1,
+  },
+  metaLabel: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#94A3B8',
+    marginBottom: 6,
+    letterSpacing: 1,
+  },
+  metaValueRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  metaValue: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#1E293B',
+    marginLeft: 8,
   },
   section: {
-    marginBottom: 24,
+    marginBottom: 32,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+    paddingHorizontal: 4,
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 12,
+    fontWeight: '800',
+    color: '#1E293B',
   },
-  infoCard: {
-    backgroundColor: '#fff',
+  photoCountBadge: {
+    backgroundColor: '#E2E8F0',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
     borderRadius: 12,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: '#eee',
   },
-  infoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  infoLabel: {
-    marginLeft: 10,
-    fontSize: 14,
-    color: '#666',
-    width: 80,
-  },
-  infoValue: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
-    flex: 1,
+  photoCountText: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#475569',
   },
   photoGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
   },
-  photoCard: {
-    width: '48%',
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    overflow: 'hidden',
+  photoContainer: {
+    width: PHOTO_SIZE,
     marginBottom: 16,
-    borderWidth: 1,
-    borderColor: '#eee',
+  },
+  photoWrapper: {
+    width: '100%',
+    aspectRatio: 1,
+    borderRadius: 20,
+    overflow: 'hidden',
+    backgroundColor: '#E2E8F0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
   },
   photo: {
     width: '100%',
-    aspectRatio: 1,
+    height: '100%',
   },
-  photoLabel: {
-    padding: 8,
-    backgroundColor: '#fff',
+  photoOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    padding: 12,
+    height: '40%',
+    justifyContent: 'flex-end',
   },
-  photoTypeText: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: '#666',
-    textAlign: 'center',
+  photoType: {
+    color: '#fff',
+    fontSize: 11,
+    fontWeight: '800',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
-  centered: {
-    flex: 1,
-    justifyContent: 'center',
+  emptyPhotos: {
+    padding: 40,
     alignItems: 'center',
+    backgroundColor: '#FFF',
+    borderRadius: 24,
+    borderStyle: 'dashed',
+    borderWidth: 2,
+    borderColor: '#E2E8F0',
   },
-  emptyText: {
-    color: '#999',
-    fontStyle: 'italic',
-  }
+  emptyPhotosText: {
+    marginTop: 16,
+    color: '#94A3B8',
+    textAlign: 'center',
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  exportButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#1E293B',
+    height: 64,
+    borderRadius: 20,
+    marginTop: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 15,
+    elevation: 8,
+  },
+  exportButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '800',
+    marginRight: 8,
+  },
+  errorText: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1E293B',
+    marginBottom: 16,
+  },
+  backLink: {
+    padding: 12,
+  },
+  backLinkText: {
+    color: '#4F46E5',
+    fontWeight: '700',
+  },
 });

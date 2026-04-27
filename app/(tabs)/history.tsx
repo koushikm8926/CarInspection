@@ -63,7 +63,13 @@ export default function History() {
       <Animated.View entering={FadeInRight.delay(index * 100).duration(500).springify()}>
         <TouchableOpacity 
           style={styles.card} 
-          onPress={() => router.push(`/inspection/checklist/${item.id}`)}
+          onPress={() => {
+            if (item.status === 'uploaded') {
+              router.push(`/inspection/details/${item.id}`);
+            } else {
+              router.push(`/inspection/checklist/${item.id}`);
+            }
+          }}
         >
           <View style={styles.cardHeader}>
             <View style={styles.thumbnailContainer}>
