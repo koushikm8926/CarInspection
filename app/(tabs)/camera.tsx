@@ -109,6 +109,7 @@ export default function StartInspection() {
             text="Follow the on-screen guides for the best perspectives." 
             color="#6366F1"
           />
+        </Animated.View>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>

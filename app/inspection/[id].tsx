@@ -7,6 +7,7 @@ import { X, Camera as CameraIcon } from 'lucide-react-native';
 import { useInspectionStore } from '../../src/store/useInspectionStore';
 import { imageValidationService } from '../../src/services/imageValidationService';
 import { useStability } from '../../src/hooks/useStability';
+import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 
 export default function InspectionCamera() {
   const { id, stepId, label } = useLocalSearchParams();
@@ -16,6 +17,29 @@ export default function InspectionCamera() {
   const cameraRef = useRef<any>(null);
   const router = useRouter();
   const addPhoto = useInspectionStore((state) => state.addPhoto);
+
+  // Keep screen awake while camera is active
+  React.useEffect(() => {
+    let isActive = true;
+    const enableKeepAwake = async () => {
+      try {
+        await activateKeepAwakeAsync();
+      } catch (error) {
+        console.warn('Failed to activate keep awake:', error);
+      }
+    };
+
+    enableKeepAwake();
+
+    return () => {
+      isActive = false;
+      try {
+        deactivateKeepAwake();
+      } catch (error) {
+        // Ignore deactivation errors
+      }
+    };
+  }, []);
 
   if (!permission) {
     return <View />;
