@@ -74,22 +74,50 @@ export default function Home() {
         {/* Quick Actions */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Quick Actions</Text>
-          <View style={styles.grid}>
+          
+          <Animated.View entering={FadeInDown.duration(600)}>
+            <Link href="/(tabs)/camera" asChild>
+              <TouchableOpacity style={styles.primaryActionCard}>
+                <LinearGradient
+                  colors={['#4F46E5', '#6366F1']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.primaryActionGradient}
+                >
+                  <View style={styles.primaryActionContent}>
+                    <View style={styles.primaryActionIcon}>
+                      <Camera size={28} color="#4F46E5" />
+                    </View>
+                    <View style={styles.primaryActionText}>
+                      <Text style={styles.primaryActionTitle}>New Inspection</Text>
+                      <Text style={styles.primaryActionDesc}>Start evaluating a vehicle</Text>
+                    </View>
+                    <View style={styles.primaryActionChevron}>
+                      <ChevronRight size={24} color="#FFF" />
+                    </View>
+                  </View>
+                </LinearGradient>
+              </TouchableOpacity>
+            </Link>
+          </Animated.View>
+
+          <View style={styles.secondaryActionsGrid}>
             {[
-              { href: "/(tabs)/camera", icon: Camera, label: "New Inspect", color: "#EEF2FF", iconColor: "#4F46E5" },
               { href: "/(tabs)/history", icon: ClipboardList, label: "History", color: "#ECFDF5", iconColor: "#10B981" },
               { href: "/(tabs)/vehicles", icon: Car, label: "Vehicles", color: "#FFFBEB", iconColor: "#F59E0B" },
               { href: "/(tabs)/settings", icon: Settings, label: "Settings", color: "#F8FAFC", iconColor: "#64748B" },
             ].map((item, index) => (
               <Animated.View 
                 key={index} 
-                entering={FadeInDown.delay(index * 100).duration(600)}
-                style={styles.actionCardContainer}
+                entering={FadeInDown.delay((index + 1) * 100).duration(600)}
+                style={styles.secondaryActionCardContainer}
               >
                 <Link href={item.href as any} asChild>
-                  <TouchableOpacity style={[styles.actionCard, { backgroundColor: item.color }]}>
-                    <item.icon size={28} color={item.iconColor} />
-                    <Text style={styles.actionLabel}>{item.label}</Text>
+                  <TouchableOpacity style={styles.secondaryActionCard}>
+                    <View style={[styles.secondaryIconContainer, { backgroundColor: item.color }]}>
+                      <item.icon size={22} color={item.iconColor} />
+                    </View>
+                    <Text style={styles.secondaryActionLabel}>{item.label}</Text>
                   </TouchableOpacity>
                 </Link>
               </Animated.View>
@@ -254,27 +282,87 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '700',
   },
-  grid: {
+  primaryActionCard: {
+    borderRadius: 24,
+    marginBottom: 16,
+    overflow: 'hidden',
+    shadowColor: '#4F46E5',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  primaryActionGradient: {
+    padding: 20,
+  },
+  primaryActionContent: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
+    alignItems: 'center',
+  },
+  primaryActionIcon: {
+    width: 56,
+    height: 56,
+    borderRadius: 18,
+    backgroundColor: '#FFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  primaryActionText: {
+    flex: 1,
+    marginLeft: 16,
+  },
+  primaryActionTitle: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#FFF',
+    marginBottom: 4,
+  },
+  primaryActionDesc: {
+    fontSize: 14,
+    color: 'rgba(255,255,255,0.8)',
+    fontWeight: '500',
+  },
+  primaryActionChevron: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  secondaryActionsGrid: {
+    flexDirection: 'row',
     justifyContent: 'space-between',
   },
-  actionCardContainer: {
-    width: '48%',
-    marginBottom: 16,
+  secondaryActionCardContainer: {
+    width: '31%',
   },
-  actionCard: {
-    padding: 20,
-    borderRadius: 24,
+  secondaryActionCard: {
+    backgroundColor: '#FFF',
+    padding: 16,
+    borderRadius: 20,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.03)',
+    borderColor: '#F1F5F9',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.03,
+    shadowRadius: 8,
+    elevation: 2,
   },
-  actionLabel: {
-    marginTop: 12,
-    fontSize: 14,
+  secondaryIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  secondaryActionLabel: {
+    fontSize: 13,
     fontWeight: '700',
     color: '#1E293B',
+    textAlign: 'center',
   },
   activityItem: {
     flexDirection: 'row',
