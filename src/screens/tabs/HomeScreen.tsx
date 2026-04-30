@@ -2,9 +2,9 @@ import React, { useEffect } from 'react';
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Dimensions, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Camera, Car, ClipboardList, Settings, Bell, ChevronRight, TrendingUp, Clock, CheckCircle2 } from 'lucide-react-native';
-import { Link, useRouter } from 'expo-router';
-import { useAuthStore } from '../../src/store/useAuthStore';
-import { useInspectionStore } from '../../src/store/useInspectionStore';
+import { useNavigation } from '@react-navigation/native';
+import { useAuthStore } from '../../store/useAuthStore';
+import { useInspectionStore } from '../../store/useInspectionStore';
 import Animated, { FadeInDown, FadeInRight } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -13,7 +13,7 @@ const { width } = Dimensions.get('window');
 export default function Home() {
   const user = useAuthStore((state) => state.user);
   const { inspections, isLoading, loadInspections } = useInspectionStore();
-  const router = useRouter();
+  const navigation = useNavigation<any>();
   const insets = useSafeAreaInsets();
 
   useEffect(() => {
@@ -45,7 +45,7 @@ export default function Home() {
         {/* Header Section */}
         <View style={styles.headerContainer}>
           <LinearGradient
-            colors={['#4F46E5', '#6366F1', '#818CF8']}
+            colors={['#0787e2', '#0787e2', '#45a6f0']}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={[styles.headerGradient, { paddingTop: insets.top + 20 }]}
@@ -65,7 +65,7 @@ export default function Home() {
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.statsScroll}>
                 <StatCard label="Total" value={totalInspections} icon={TrendingUp} color="#10B981" delay={200} />
                 <StatCard label="Pending" value={pendingInspections} icon={Clock} color="#F59E0B" delay={400} />
-                <StatCard label="Vehicles" value="8" icon={Car} color="#6366F1" delay={600} />
+                <StatCard label="Vehicles" value="8" icon={Car} color="#0787e2" delay={600} />
               </ScrollView>
             </View>
           </LinearGradient>
@@ -76,17 +76,17 @@ export default function Home() {
           <Text style={styles.sectionTitle}>Quick Actions</Text>
           
           <Animated.View entering={FadeInDown.duration(600)}>
-            <Link href="/(tabs)/camera" asChild>
-              <TouchableOpacity style={styles.primaryActionCard}>
+            
+              <TouchableOpacity style={styles.primaryActionCard} onPress={() => navigation.navigate('Camera')}>
                 <LinearGradient
-                  colors={['#4F46E5', '#6366F1']}
+                  colors={['#0787e2', '#0787e2']}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
                   style={styles.primaryActionGradient}
                 >
                   <View style={styles.primaryActionContent}>
                     <View style={styles.primaryActionIcon}>
-                      <Camera size={28} color="#4F46E5" />
+                      <Camera size={28} color="#0787e2" />
                     </View>
                     <View style={styles.primaryActionText}>
                       <Text style={styles.primaryActionTitle}>New Inspection</Text>
@@ -98,7 +98,7 @@ export default function Home() {
                   </View>
                 </LinearGradient>
               </TouchableOpacity>
-            </Link>
+            
           </Animated.View>
 
           <View style={styles.secondaryActionsGrid}>
@@ -112,14 +112,14 @@ export default function Home() {
                 entering={FadeInDown.delay((index + 1) * 100).duration(600)}
                 style={styles.secondaryActionCardContainer}
               >
-                <Link href={item.href as any} asChild>
-                  <TouchableOpacity style={styles.secondaryActionCard}>
+                
+                  <TouchableOpacity style={styles.secondaryActionCard} onPress={() => navigation.navigate(item.label)}>
                     <View style={[styles.secondaryIconContainer, { backgroundColor: item.color }]}>
                       <item.icon size={22} color={item.iconColor} />
                     </View>
                     <Text style={styles.secondaryActionLabel}>{item.label}</Text>
                   </TouchableOpacity>
-                </Link>
+                
               </Animated.View>
             ))}
           </View>
@@ -129,7 +129,7 @@ export default function Home() {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Recent Activity</Text>
-            <TouchableOpacity onPress={() => router.push('/(tabs)/history')}>
+            <TouchableOpacity onPress={() => navigation.navigate('History')}>
               <Text style={styles.seeAllText}>See All</Text>
             </TouchableOpacity>
           </View>
@@ -142,7 +142,7 @@ export default function Home() {
               >
                 <TouchableOpacity 
                   style={styles.activityItem}
-                  onPress={() => router.push(`/inspection/${item.id}`)}
+                  onPress={() => navigation.navigate('Inspection', { id: item.id })}
                 >
                   <View style={[styles.activityIcon, { backgroundColor: item.status === 'completed' ? '#ECFDF5' : '#FFFBEB' }]}>
                     <CheckCircle2 size={20} color={item.status === 'completed' ? '#10B981' : '#F59E0B'} />
@@ -222,7 +222,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     backgroundColor: '#EF4444',
     borderWidth: 2,
-    borderColor: '#4F46E5',
+    borderColor: '#0787e2',
   },
   statsContainer: {
     marginTop: 8,
@@ -278,7 +278,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   seeAllText: {
-    color: '#4F46E5',
+    color: '#0787e2',
     fontSize: 14,
     fontWeight: '700',
   },
@@ -286,7 +286,7 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     marginBottom: 16,
     overflow: 'hidden',
-    shadowColor: '#4F46E5',
+    shadowColor: '#0787e2',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.2,
     shadowRadius: 12,

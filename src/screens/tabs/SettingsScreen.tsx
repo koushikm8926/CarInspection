@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Switch, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { User, Bell, Shield, Cloud, Info, LogOut, ChevronRight, Moon, Globe, HelpCircle } from 'lucide-react-native';
-import { useAuthStore } from '../../src/store/useAuthStore';
-import { useRouter } from 'expo-router';
+import { useAuthStore } from '../../store/useAuthStore';
+import { useNavigation } from '@react-navigation/native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
 interface SettingItemProps {
@@ -31,7 +31,7 @@ const SettingItem = ({ icon: Icon, label, value, type = 'chevron', onValueChange
     >
       <View style={styles.settingLeft}>
         <View style={styles.iconContainer}>
-          <Icon size={20} color="#4F46E5" />
+          <Icon size={20} color="#0787e2" />
         </View>
         <Text style={styles.settingLabel}>{label}</Text>
       </View>
@@ -41,7 +41,7 @@ const SettingItem = ({ icon: Icon, label, value, type = 'chevron', onValueChange
             value={value} 
             onValueChange={onValueChange}
             trackColor={{ false: '#eee', true: '#C7D2FE' }}
-            thumbColor={value ? '#4F46E5' : '#f4f3f4'}
+            thumbColor={value ? '#0787e2' : '#f4f3f4'}
           />
         ) : (
           <ChevronRight size={20} color="#ccc" />
@@ -53,7 +53,7 @@ const SettingItem = ({ icon: Icon, label, value, type = 'chevron', onValueChange
 
 export default function Settings() {
   const { user, logout } = useAuthStore();
-  const router = useRouter();
+  const navigation = useNavigation<any>();
   
   // App States
   const [autoSync, setAutoSync] = useState(true);
@@ -72,7 +72,7 @@ export default function Settings() {
           style: 'destructive',
           onPress: async () => {
             await logout();
-            router.replace('/(auth)/login');
+            navigation.reset({ index: 0, routes: [{ name: 'Auth' }] });
           }
         },
       ]
@@ -190,7 +190,7 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: '#4F46E5',
+    backgroundColor: '#0787e2',
     justifyContent: 'center',
     alignItems: 'center',
   },

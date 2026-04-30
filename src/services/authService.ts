@@ -4,11 +4,11 @@ import { secureStorage } from './secureStore';
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const authService = {
-  async login(email: string, password: string) {
+  async login(email: string) {
     await delay(1500); // Simulate network latency
 
     // MOCK LOGIN SUCCESS
-    if (email && password) {
+    if (email) {
       const mockUser = {
         id: '12345',
         email: email,

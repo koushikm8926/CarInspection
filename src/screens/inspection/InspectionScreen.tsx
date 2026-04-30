@@ -1,21 +1,22 @@
 import React, { useState, useRef } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
-import { CameraOverlay } from '../../src/components/CameraOverlay';
+import { CameraOverlay } from '../../components/CameraOverlay';
 import { X, Camera as CameraIcon } from 'lucide-react-native';
-import { useInspectionStore } from '../../src/store/useInspectionStore';
-import { imageValidationService } from '../../src/services/imageValidationService';
-import { useStability } from '../../src/hooks/useStability';
+import { useInspectionStore } from '../../store/useInspectionStore';
+import { imageValidationService } from '../../services/imageValidationService';
+import { useStability } from '../../hooks/useStability';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 
 export default function InspectionCamera() {
-  const { id, stepId, label } = useLocalSearchParams();
+  const route = useRoute<any>();
+  const { id, stepId, label } = route.params || {};
   const [permission, requestPermission] = useCameraPermissions();
   const [isValidating, setIsValidating] = useState(false);
   const { isStable } = useStability();
   const cameraRef = useRef<any>(null);
-  const router = useRouter();
+  const navigation = useNavigation<any>();
   const addPhoto = useInspectionStore((state) => state.addPhoto);
 
   // Keep screen awake while camera is active
@@ -83,7 +84,7 @@ export default function InspectionCamera() {
         await addPhoto(id as string, photoData.uri, (stepId as string) || 'EXTERIOR_FRONT');
         
         Alert.alert('Perfect!', 'Photo meets quality standards.', [
-          { text: 'Continue', onPress: () => router.back() }
+          { text: 'Continue', onPress: () => navigation.goBack() }
         ]);
       } catch (error) {
         console.error('Failed to take picture', error);
@@ -100,7 +101,7 @@ export default function InspectionCamera() {
         
         <TouchableOpacity 
           style={styles.closeButton} 
-          onPress={() => router.back()}
+          onPress={() => navigation.goBack()}
         >
           <X size={28} color="#fff" />
         </TouchableOpacity>
@@ -113,9 +114,9 @@ export default function InspectionCamera() {
           >
             <View style={styles.captureButtonInner}>
               {isValidating ? (
-                <ActivityIndicator color="#4F46E5" />
+                <ActivityIndicator color="#0787e2" />
               ) : (
-                <CameraIcon size={32} color={isStable ? "#4F46E5" : "#ccc"} />
+                <CameraIcon size={32} color={isStable ? "#0787e2" : "#ccc"} />
               )}
             </View>
           </TouchableOpacity>
@@ -169,7 +170,7 @@ const styles = StyleSheet.create({
   },
   permissionButton: {
     marginTop: 20,
-    backgroundColor: '#4F46E5',
+    backgroundColor: '#0787e2',
     padding: 15,
     borderRadius: 10,
     alignSelf: 'center',

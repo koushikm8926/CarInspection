@@ -2,8 +2,8 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { StyleSheet, Text, View, FlatList, TouchableOpacity, TextInput, Modal, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Car, Plus, X, Hash, Calendar, Tag, Shield, Info, ChevronRight, Search } from 'lucide-react-native';
-import { databaseService } from '../../src/services/databaseService';
-import { useAuthStore } from '../../src/store/useAuthStore';
+import { databaseService } from '../../services/databaseService';
+import { useAuthStore } from '../../store/useAuthStore';
 import Animated, { FadeInDown, FadeInRight, FadeInUp } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -76,7 +76,7 @@ export default function Vehicles() {
     >
       <View style={styles.cardMain}>
         <View style={styles.iconBox}>
-          <Car size={28} color="#4F46E5" />
+          <Car size={28} color="#0787e2" />
         </View>
         <View style={styles.vehicleDetails}>
           <Text style={styles.vehicleName}>{item.make} {item.model}</Text>
@@ -125,7 +125,7 @@ export default function Vehicles() {
       <View style={styles.content}>
         {loading ? (
           <View style={styles.centered}>
-            <ActivityIndicator size="large" color="#4F46E5" />
+            <ActivityIndicator size="large" color="#0787e2" />
           </View>
         ) : (
           <FlatList
@@ -159,7 +159,7 @@ export default function Vehicles() {
         onPress={() => setModalVisible(true)}
       >
         <LinearGradient
-          colors={['#4F46E5', '#6366F1']}
+          colors={['#0787e2', '#0787e2']}
           style={styles.fabGradient}
         >
           <Plus size={32} color="#fff" />
@@ -239,7 +239,7 @@ export default function Vehicles() {
                 </View>
 
                 <View style={styles.infoBox}>
-                  <Info size={16} color="#4F46E5" />
+                  <Info size={16} color="#0787e2" />
                   <Text style={styles.infoText}>Adding a vehicle allows you to track its entire inspection history in one place.</Text>
                 </View>
 
@@ -399,7 +399,7 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    shadowColor: '#4F46E5',
+    shadowColor: '#0787e2',
     shadowOffset: { width: 0, height: 12 },
     shadowOpacity: 0.3,
     shadowRadius: 15,
@@ -509,7 +509,7 @@ const styles = StyleSheet.create({
   infoText: {
     flex: 1,
     fontSize: 13,
-    color: '#4F46E5',
+    color: '#0787e2',
     fontWeight: '600',
     marginLeft: 12,
     lineHeight: 18,
@@ -576,11 +576,11 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   emptyAddBtn: {
-    backgroundColor: '#4F46E5',
+    backgroundColor: '#0787e2',
     paddingHorizontal: 32,
     paddingVertical: 16,
     borderRadius: 16,
-    shadowColor: '#4F46E5',
+    shadowColor: '#0787e2',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.2,
     shadowRadius: 15,

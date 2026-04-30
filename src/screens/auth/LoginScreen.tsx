@@ -1,32 +1,31 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { useNavigation } from '@react-navigation/native';
 import { Mail, Lock, LogIn } from 'lucide-react-native';
-import { useAuthStore } from '../../src/store/useAuthStore';
-import { authService } from '../../src/services/authService';
+import { useAuthStore } from '../../store/useAuthStore';
+import { authService } from '../../services/authService';
 
 export default function Login() {
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   
-  const router = useRouter();
+  const navigation = useNavigation<any>();
   const setUser = useAuthStore((state) => state.setUser);
 
   const handleLogin = async () => {
-    if (!email || !password) {
-      setError('Please fill in all fields');
+    if (!email) {
+      setError('Please enter your email');
       return;
     }
 
     setLoading(true);
     setError('');
     try {
-      const response = await authService.login(email, password);
+      const response = await authService.login(email);
       setUser(response.user, response.token);
-      router.replace('/');
+      navigation.reset({ index: 0, routes: [{ name: 'Main' }] });
     } catch (err: any) {
       setError(err.message || 'Login failed');
     } finally {
@@ -61,23 +60,6 @@ export default function Login() {
               placeholderTextColor="#999"
             />
           </View>
-
-          <View style={styles.inputContainer}>
-            <Lock size={20} color="#999" style={styles.inputIcon} />
-            <TextInput
-              style={styles.input}
-              placeholder="Password"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-              placeholderTextColor="#999"
-            />
-          </View>
-
-          <TouchableOpacity style={styles.forgotPassword}>
-            <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
-          </TouchableOpacity>
-
           <TouchableOpacity 
             style={styles.loginButton} 
             onPress={handleLogin}
@@ -95,7 +77,7 @@ export default function Login() {
 
           <View style={styles.footer}>
             <Text style={styles.footerText}>Don't have an account? </Text>
-            <TouchableOpacity onPress={() => router.push('/(auth)/signup')}>
+            <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
               <Text style={styles.footerLink}>Sign Up</Text>
             </TouchableOpacity>
           </View>
@@ -159,7 +141,7 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   forgotPasswordText: {
-    color: '#4F46E5',
+    color: '#0787e2',
     fontWeight: '700',
     fontSize: 14,
   },
@@ -191,7 +173,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   footerLink: {
-    color: '#4F46E5',
+    color: '#0787e2',
     fontSize: 15,
     fontWeight: '800',
   },

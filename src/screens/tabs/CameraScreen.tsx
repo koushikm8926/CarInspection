@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, TextInput, ActivityIndicator, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
-import { useInspectionStore } from '../../src/store/useInspectionStore';
-import { useAuthStore } from '../../src/store/useAuthStore';
+import { useNavigation } from '@react-navigation/native';
+import { useInspectionStore } from '../../store/useInspectionStore';
+import { useAuthStore } from '../../store/useAuthStore';
 import { Play, Sparkles, Lightbulb, Zap, ShieldCheck } from 'lucide-react-native';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -11,7 +11,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 export default function StartInspection() {
   const [vehicleName, setVehicleName] = useState('');
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
+  const navigation = useNavigation<any>();
   
   const { startInspection } = useInspectionStore();
   const { user } = useAuthStore();
@@ -23,7 +23,7 @@ export default function StartInspection() {
     try {
       const id = await startInspection(user.id, vehicleName);
       console.log('Inspection started with ID:', id);
-      router.push(`/inspection/checklist/${id}`);
+      navigation.navigate('InspectionChecklist', { id: id });
     } catch (error) {
       console.error('Failed to start inspection', error);
     } finally {
@@ -51,7 +51,7 @@ export default function StartInspection() {
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         <Animated.View entering={FadeInDown.duration(600)} style={styles.header}>
           <View style={styles.iconCircle}>
-            <Sparkles size={32} color="#4F46E5" />
+            <Sparkles size={32} color="#0787e2" />
           </View>
           <Text style={styles.title}>New Inspection</Text>
           <Text style={styles.subtitle}>Ready to evaluate another vehicle? Let's get the basic details first.</Text>
@@ -76,7 +76,7 @@ export default function StartInspection() {
               <ActivityIndicator color="#fff" />
             ) : (
               <LinearGradient
-                colors={vehicleName ? ['#4F46E5', '#6366F1'] : ['#E2E8F0', '#E2E8F0']}
+                colors={vehicleName ? ['#0787e2', '#0787e2'] : ['#E2E8F0', '#E2E8F0']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={styles.buttonGradient}
@@ -107,7 +107,7 @@ export default function StartInspection() {
           <TipItem 
             icon={Sparkles} 
             text="Follow the on-screen guides for the best perspectives." 
-            color="#6366F1"
+            color="#0787e2"
           />
         </Animated.View>
         </ScrollView>

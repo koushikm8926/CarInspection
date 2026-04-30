@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, ActivityIndicator, Platform, Dimensions } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { databaseService, InspectionRecord, PhotoRecord } from '../../../src/services/databaseService';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { databaseService, InspectionRecord, PhotoRecord } from '../../services/databaseService';
 import { CheckCircle2, Clock, MapPin, Calendar, User, ArrowLeft, Car, Shield, Hash, Image as ImageIcon, ChevronRight } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
@@ -11,11 +11,12 @@ const { width } = Dimensions.get('window');
 const PHOTO_SIZE = (width - 64) / 2;
 
 export default function InspectionDetails() {
-  const { id } = useLocalSearchParams();
+  const route = useRoute<any>();
+  const { id } = route.params || {};
   const [inspection, setInspection] = useState<InspectionRecord | null>(null);
   const [photos, setPhotos] = useState<PhotoRecord[]>([]);
   const [loading, setLoading] = useState(true);
-  const router = useRouter();
+  const navigation = useNavigation<any>();
   const insets = useSafeAreaInsets();
 
   useEffect(() => {
@@ -43,7 +44,7 @@ export default function InspectionDetails() {
   if (loading) {
     return (
       <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#4F46E5" />
+        <ActivityIndicator size="large" color="#0787e2" />
       </View>
     );
   }
@@ -52,7 +53,7 @@ export default function InspectionDetails() {
     return (
       <View style={styles.centered}>
         <Text style={styles.errorText}>Inspection not found</Text>
-        <TouchableOpacity style={styles.backLink} onPress={() => router.back()}>
+        <TouchableOpacity style={styles.backLink} onPress={() => navigation.goBack()}>
           <Text style={styles.backLinkText}>Go Back</Text>
         </TouchableOpacity>
       </View>
@@ -63,7 +64,7 @@ export default function InspectionDetails() {
     <View style={styles.container}>
       <View style={[styles.header, { paddingTop: insets.top + 20 }]}>
         <View style={styles.navRow}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
             <ArrowLeft size={24} color="#1E293B" />
           </TouchableOpacity>
           <View style={styles.headerBadge}>
@@ -79,7 +80,7 @@ export default function InspectionDetails() {
         <Animated.View entering={FadeInDown.duration(600)} style={styles.infoCard}>
           <View style={styles.vehicleHeader}>
             <View style={styles.iconBox}>
-              <Car size={32} color="#4F46E5" />
+              <Car size={32} color="#0787e2" />
             </View>
             <View style={styles.vehicleMainInfo}>
               <Text style={styles.vehicleName}>{inspection.vehicleName || 'Untitled Vehicle'}</Text>
@@ -410,7 +411,7 @@ const styles = StyleSheet.create({
     padding: 12,
   },
   backLinkText: {
-    color: '#4F46E5',
+    color: '#0787e2',
     fontWeight: '700',
   },
 });

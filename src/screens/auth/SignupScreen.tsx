@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { useNavigation } from '@react-navigation/native';
 import { Mail, Lock, User, UserPlus } from 'lucide-react-native';
-import { useAuthStore } from '../../src/store/useAuthStore';
-import { authService } from '../../src/services/authService';
+import { useAuthStore } from '../../store/useAuthStore';
+import { authService } from '../../services/authService';
 
 export default function SignUp() {
   const [name, setName] = useState('');
@@ -13,7 +13,7 @@ export default function SignUp() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   
-  const router = useRouter();
+  const navigation = useNavigation<any>();
   const setUser = useAuthStore((state) => state.setUser);
 
   const handleSignUp = async () => {
@@ -27,7 +27,7 @@ export default function SignUp() {
     try {
       const response = await authService.signup(email, password, name);
       setUser(response.user, response.token);
-      router.replace('/');
+      navigation.reset({ index: 0, routes: [{ name: 'Main' }] });
     } catch (err: any) {
       setError(err.message || 'Sign up failed');
     } finally {
@@ -103,7 +103,7 @@ export default function SignUp() {
 
             <View style={styles.footer}>
               <Text style={styles.footerText}>Already have an account? </Text>
-              <TouchableOpacity onPress={() => router.back()}>
+              <TouchableOpacity onPress={() => navigation.goBack()}>
                 <Text style={styles.footerLink}>Login</Text>
               </TouchableOpacity>
             </View>

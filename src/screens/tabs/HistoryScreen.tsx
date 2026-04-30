@@ -1,11 +1,11 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { StyleSheet, Text, View, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl, Image, TextInput, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useInspectionStore } from '../../src/store/useInspectionStore';
-import { useAuthStore } from '../../src/store/useAuthStore';
+import { useInspectionStore } from '../../store/useInspectionStore';
+import { useAuthStore } from '../../store/useAuthStore';
 import { CheckCircle2, Clock, ChevronRight, Image as ImageIcon, ClipboardList, Search, Filter, Calendar } from 'lucide-react-native';
-import { useRouter } from 'expo-router';
-import { databaseService } from '../../src/services/databaseService';
+import { useNavigation } from '@react-navigation/native';
+import { databaseService } from '../../services/databaseService';
 import Animated, { FadeInDown, FadeInRight } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -14,7 +14,7 @@ export default function History() {
   const { user } = useAuthStore();
   const [photos, setPhotos] = useState<Record<string, string>>({});
   const [searchQuery, setSearchQuery] = useState('');
-  const router = useRouter();
+  const navigation = useNavigation<any>();
   const insets = useSafeAreaInsets();
 
   useEffect(() => {
@@ -51,7 +51,7 @@ export default function History() {
       case 'pending':
         return { color: '#F59E0B', bg: '#FFFBEB', icon: Clock, label: 'PENDING' };
       default:
-        return { color: '#4F46E5', bg: '#EEF2FF', icon: Clock, label: 'DRAFT' };
+        return { color: '#0787e2', bg: '#EEF2FF', icon: Clock, label: 'DRAFT' };
     }
   };
 
@@ -65,9 +65,9 @@ export default function History() {
           style={styles.card} 
           onPress={() => {
             if (item.status === 'uploaded') {
-              router.push(`/inspection/details/${item.id}`);
+              navigation.navigate('InspectionDetails', { id: item.id });
             } else {
-              router.push(`/inspection/checklist/${item.id}`);
+              navigation.navigate('InspectionChecklist', { id: item.id });
             }
           }}
         >
@@ -109,7 +109,7 @@ export default function History() {
             </View>
             <View style={styles.viewAction}>
               <Text style={styles.viewText}>View</Text>
-              <ChevronRight size={16} color="#4F46E5" />
+              <ChevronRight size={16} color="#0787e2" />
             </View>
           </View>
         </TouchableOpacity>
@@ -133,14 +133,14 @@ export default function History() {
             />
           </View>
           <TouchableOpacity style={styles.filterBtn}>
-            <Filter size={20} color="#4F46E5" />
+            <Filter size={20} color="#0787e2" />
           </TouchableOpacity>
         </View>
       </View>
 
       {isLoading && inspections.length === 0 ? (
         <View style={styles.centered}>
-          <ActivityIndicator size="large" color="#4F46E5" />
+          <ActivityIndicator size="large" color="#0787e2" />
         </View>
       ) : filteredInspections.length === 0 ? (
         <View style={styles.centered}>
@@ -154,7 +154,7 @@ export default function History() {
             </Text>
             <TouchableOpacity 
               style={styles.startBtn}
-              onPress={() => router.push('/(tabs)/camera')}
+              onPress={() => navigation.navigate('Camera')}
             >
               <Text style={styles.startBtnText}>Start New Inspection</Text>
             </TouchableOpacity>
@@ -168,7 +168,7 @@ export default function History() {
           contentContainerStyle={styles.list}
           showsVerticalScrollIndicator={false}
           refreshControl={
-            <RefreshControl refreshing={isLoading} onRefresh={onRefresh} tintColor="#4F46E5" />
+            <RefreshControl refreshing={isLoading} onRefresh={onRefresh} tintColor="#0787e2" />
           }
         />
       )}
@@ -351,7 +351,7 @@ const styles = StyleSheet.create({
   viewText: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#4F46E5',
+    color: '#0787e2',
     marginRight: 4,
   },
   centered: {

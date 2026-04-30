@@ -1,17 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity, ActivityIndicator, Alert, Platform, Image } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router';
+import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
 import { CheckCircle2, Circle, ChevronRight, Camera, ArrowLeft, Info, Trophy } from 'lucide-react-native';
-import { INSPECTION_STEPS, InspectionStep } from '../../../src/constants/inspectionSteps';
-import { databaseService, PhotoRecord } from '../../../src/services/databaseService';
-import { useInspectionStore } from '../../../src/store/useInspectionStore';
+import { INSPECTION_STEPS, InspectionStep } from '../../constants/inspectionSteps';
+import { databaseService, PhotoRecord } from '../../services/databaseService';
+import { useInspectionStore } from '../../store/useInspectionStore';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 
 export default function InspectionChecklist() {
-  const { id } = useLocalSearchParams();
-  const router = useRouter();
+  const route = useRoute<any>();
+  const { id } = route.params || {};
+  const navigation = useNavigation<any>();
   const [photos, setPhotos] = useState<PhotoRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const { saveInspectionData } = useInspectionStore();
@@ -65,7 +66,7 @@ export default function InspectionChecklist() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#4F46E5" />
+        <ActivityIndicator size="large" color="#0787e2" />
       </View>
     );
   }
@@ -79,7 +80,7 @@ export default function InspectionChecklist() {
     <View style={styles.container}>
       <View style={[styles.header, { paddingTop: insets.top + 20 }]}>
         <View style={styles.navRow}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
             <ArrowLeft size={24} color="#1E293B" />
           </TouchableOpacity>
           <View style={styles.headerBadge}>
@@ -91,7 +92,7 @@ export default function InspectionChecklist() {
         
         <Animated.View entering={FadeInDown.duration(800)} style={styles.progressCard}>
           <LinearGradient
-            colors={['#4F46E5', '#6366F1']}
+            colors={['#0787e2', '#0787e2']}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
             style={styles.progressGradient}
@@ -227,7 +228,7 @@ const styles = StyleSheet.create({
   badgeText: {
     fontSize: 10,
     fontWeight: '800',
-    color: '#4F46E5',
+    color: '#0787e2',
     letterSpacing: 0.5,
   },
   title: {
@@ -239,7 +240,7 @@ const styles = StyleSheet.create({
   progressCard: {
     borderRadius: 24,
     overflow: 'hidden',
-    shadowColor: '#4F46E5',
+    shadowColor: '#0787e2',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.2,
     shadowRadius: 15,

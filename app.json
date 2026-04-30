@@ -31,7 +31,6 @@
     "plugins": [
       "expo-sqlite",
       "expo-secure-store",
-      "expo-router",
       [
         "expo-splash-screen",
         {
@@ -40,6 +39,11 @@
           "imageWidth": 200
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "e687e3bb-d869-4082-8214-d88f75184ca2"
+      }
+    }
   }
 }
