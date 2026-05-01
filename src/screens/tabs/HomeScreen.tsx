@@ -87,9 +87,9 @@ export default function Home() {
 
           <View style={styles.secondaryActionsGrid}>
             {[
-              { screen: "History",  icon: ClipboardCheck, label: "Pre Hold\nCleaning",  color: "#ECFDF5", iconColor: "#10B981" },
-              { screen: "Vehicles", icon: Ship,           label: "Bunker\nSurvey",    color: "#EFF6FF", iconColor: "#0787e2" },
-              { screen: "Settings", icon: Layers,          label: "Combined\nInsp.",    color: "#FAF5FF", iconColor: "#8B5CF6" },
+              { screen: "PreHoldCleaning",  icon: ClipboardCheck, label: "Pre Hold\nCleaning",  color: "#ECFDF5", iconColor: "#10B981" },
+              { screen: null, icon: Ship,           label: "Bunker\nSurvey",    color: "#EFF6FF", iconColor: "#0787e2" },
+              { screen: null, icon: Layers,          label: "Combined\nInsp.",    color: "#FAF5FF", iconColor: "#8B5CF6" },
             ].map((item, index) => (
               <Animated.View 
                 key={index} 
@@ -97,7 +97,11 @@ export default function Home() {
                 style={styles.secondaryActionCardContainer}
               >
                 
-                  <TouchableOpacity style={styles.secondaryActionCard} onPress={() => navigation.navigate(item.screen)}>
+                  <TouchableOpacity 
+                    style={styles.secondaryActionCard} 
+                    onPress={() => item.screen ? navigation.navigate(item.screen) : null}
+                    activeOpacity={item.screen ? 0.2 : 1}
+                  >
                     <View style={[styles.secondaryIconContainer, { backgroundColor: item.color }]}>
                       <item.icon size={22} color={item.iconColor} />
                     </View>

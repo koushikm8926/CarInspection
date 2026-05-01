@@ -23,10 +23,10 @@ import VehiclesScreen from './src/screens/tabs/VehiclesScreen';
 import SettingsScreen from './src/screens/tabs/SettingsScreen';
 import CameraScreen from './src/screens/tabs/CameraScreen';
 
-// Screens - Inspection
 import InspectionScreen from './src/screens/inspection/InspectionScreen';
 import InspectionChecklistScreen from './src/screens/inspection/InspectionChecklistScreen';
 import InspectionDetailsScreen from './src/screens/inspection/InspectionDetailsScreen';
+import PreHoldCleaningScreen from './src/screens/inspection/PreHoldCleaningScreen';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -138,6 +138,7 @@ function MainNavigator() {
       <Stack.Screen name="Inspection" component={InspectionScreen} />
       <Stack.Screen name="InspectionChecklist" component={InspectionChecklistScreen} />
       <Stack.Screen name="InspectionDetails" component={InspectionDetailsScreen} />
+      <Stack.Screen name="PreHoldCleaning" component={PreHoldCleaningScreen} />
     </Stack.Navigator>
   );
 }
