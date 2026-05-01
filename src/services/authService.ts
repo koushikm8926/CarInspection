@@ -36,22 +36,7 @@ export const authService = {
     return { user: mockUser, token: mockToken };
   },
 
-  async signup(email: string, password: string, name: string) {
-    await delay(1500);
-    
-    // MOCK SIGNUP SUCCESS
-    const mockUser = {
-      id: Math.random().toString(36).substr(2, 9),
-      email: email,
-      name: name,
-    };
-    const mockToken = 'mock-jwt-token-new';
 
-    await secureStorage.saveToken(mockToken);
-    await secureStorage.saveUser(mockUser);
-
-    return { user: mockUser, token: mockToken };
-  },
 
   async forgotPassword(email: string) {
     await delay(1000);

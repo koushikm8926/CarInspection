@@ -14,7 +14,7 @@ import { initDatabase } from './src/services/databaseService';
 
 // Screens - Auth
 import LoginScreen from './src/screens/auth/LoginScreen';
-import SignupScreen from './src/screens/auth/SignupScreen';
+
 
 // Screens - Tabs
 import HomeScreen from './src/screens/tabs/HomeScreen';
@@ -133,7 +133,6 @@ function AuthNavigator() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Login" component={LoginScreen} />
-      <Stack.Screen name="Signup" component={SignupScreen} />
     </Stack.Navigator>
   );
 }

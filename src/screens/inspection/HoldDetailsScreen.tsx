@@ -6,8 +6,6 @@ import { ArrowLeft, Camera, CheckCircle2, ChevronRight, Layers } from 'lucide-re
 import { LinearGradient } from 'expo-linear-gradient';
 import CustomCameraModal from '../../components/CustomCameraModal';
 
-const { width } = Dimensions.get('window');
-
 const ZONES = [
   { id: 'z1', title: 'Hatch Cover' },
   { id: 'z2', title: 'Under Deck Area' },
@@ -118,11 +116,6 @@ export default function HoldDetailsScreen() {
 
         {/* Zones Section */}
         <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Inspection Zones</Text>
-            <Text style={styles.progressText}>9 Zones</Text>
-          </View>
-
           <View style={styles.zonesList}>
             {ZONES.map((zone, index) => (
               <View 

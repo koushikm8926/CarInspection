@@ -15,7 +15,7 @@ export default function SublocationScreen() {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
   const insets = useSafeAreaInsets();
-
+  
   const title = route.params?.title || 'Sublocation';
   const zoneTitle = route.params?.zoneTitle || '';
 
