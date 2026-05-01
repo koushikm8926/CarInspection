@@ -51,6 +51,7 @@ const OPTIONS = [
     icon: Droplets,
     colors: ['#3B82F6', '#60A5FA'],
     iconColor: '#FFF',
+    screen: 'DaysFreshWater',
   },
 ];
 

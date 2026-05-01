@@ -34,6 +34,7 @@ import WalkTheHoldScreen from './src/screens/inspection/WalkTheHoldScreen';
 import HoldDetailsScreen from './src/screens/inspection/HoldDetailsScreen';
 import ZoneDetailsScreen from './src/screens/inspection/ZoneDetailsScreen';
 import SublocationScreen from './src/screens/inspection/SublocationScreen';
+import DaysFreshWaterScreen from './src/screens/inspection/DaysFreshWaterScreen';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -157,6 +158,7 @@ function MainNavigator() {
       <Stack.Screen name="HoldDetails" component={HoldDetailsScreen} />
       <Stack.Screen name="ZoneDetails" component={ZoneDetailsScreen} />
       <Stack.Screen name="Sublocation" component={SublocationScreen} />
+      <Stack.Screen name="DaysFreshWater" component={DaysFreshWaterScreen} />
     </Stack.Navigator>
   );
 }
