@@ -2,59 +2,48 @@ import React from 'react';
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Dimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import { ArrowLeft, ChevronRight, FileText, Ship, PaintBucket, Navigation, Droplets } from 'lucide-react-native';
+import { ArrowLeft, ChevronRight, ClipboardList, Users, Wrench, Package } from 'lucide-react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 
 const { width } = Dimensions.get('window');
 
-const OPTIONS = [
+const DOC_OPTIONS = [
   {
-    id: 'pre-inspection',
-    title: 'Pre-Inspection Doc',
-    description: 'Review and verify pre-inspection documents',
-    icon: FileText,
+    id: 'vessel-particulars',
+    title: 'Vessel Particulars',
+    description: 'Detailed specifications and technical data',
+    icon: ClipboardList,
     colors: ['#0787e2', '#45a6f0'],
     iconColor: '#FFF',
-    screen: 'PreInspectionDoc',
   },
   {
-    id: 'vessel-particular',
-    title: 'Vessel Particular',
-    description: 'Detailed specifications and details of the vessel',
-    icon: Ship,
+    id: 'crew-list',
+    title: 'Crew List',
+    description: 'Current onboard personnel and roles',
+    icon: Users,
     colors: ['#10B981', '#34D399'],
     iconColor: '#FFF',
-    screen: 'VesselParticular',
   },
   {
-    id: 'cleaning-standards',
-    title: 'Cleaning Standards',
-    description: 'Checklist and protocols for hold cleaning',
-    icon: PaintBucket,
+    id: 'cleaning-equipments',
+    title: 'Cleaning Equipments',
+    description: 'Inventory of hold cleaning gear',
+    icon: Wrench,
     colors: ['#F59E0B', '#FBBF24'],
     iconColor: '#FFF',
-    screen: 'CleaningStandards',
   },
   {
-    id: 'walk-hold',
-    title: 'Walk the Hold',
-    description: 'Physical inspection and walk-through of the hold',
-    icon: Navigation,
+    id: 'last-3-cargos',
+    title: 'Last 3 Cargos',
+    description: 'History of recent cargo transported',
+    icon: Package,
     colors: ['#8B5CF6', '#A78BFA'],
-    iconColor: '#FFF',
-  },
-  {
-    id: 'days-fresh-water',
-    title: 'Days & Fresh Water',
-    description: 'Track fresh water usage and remaining days',
-    icon: Droplets,
-    colors: ['#3B82F6', '#60A5FA'],
     iconColor: '#FFF',
   },
 ];
 
-export default function PreHoldCleaningScreen() {
+export default function PreInspectionDocScreen() {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
 
@@ -70,29 +59,25 @@ export default function PreHoldCleaningScreen() {
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <ArrowLeft size={24} color="#FFFFFF" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Pre Hold Cleaning</Text>
+        <Text style={styles.headerTitle}>Pre-Inspection Doc</Text>
         <View style={{ width: 40 }} />
       </LinearGradient>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         <View style={styles.headerTextContainer}>
-          <Text style={styles.subtitle}>Inspection Steps</Text>
-          <Text style={styles.description}>Please complete all the necessary steps for the pre-hold cleaning inspection.</Text>
+          <Text style={styles.subtitle}>Documentation</Text>
+          <Text style={styles.description}>Please review and verify the required documentation before proceeding.</Text>
         </View>
 
         <View style={styles.optionsList}>
-          {OPTIONS.map((item, index) => {
+          {DOC_OPTIONS.map((item, index) => {
             const Icon = item.icon;
             return (
               <Animated.View 
                 key={item.id} 
                 entering={FadeInDown.delay(index * 100).duration(600).springify()}
               >
-                <TouchableOpacity 
-                  style={styles.cardContainer} 
-                  activeOpacity={item.screen ? 0.8 : 1}
-                  onPress={() => item.screen ? navigation.navigate(item.screen as never) : null}
-                >
+                <TouchableOpacity style={styles.cardContainer} activeOpacity={0.8}>
                   <View style={styles.card}>
                     <LinearGradient
                       colors={item.colors as [string, string]}

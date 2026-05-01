@@ -27,6 +27,9 @@ import InspectionScreen from './src/screens/inspection/InspectionScreen';
 import InspectionChecklistScreen from './src/screens/inspection/InspectionChecklistScreen';
 import InspectionDetailsScreen from './src/screens/inspection/InspectionDetailsScreen';
 import PreHoldCleaningScreen from './src/screens/inspection/PreHoldCleaningScreen';
+import PreInspectionDocScreen from './src/screens/inspection/PreInspectionDocScreen';
+import VesselParticularScreen from './src/screens/inspection/VesselParticularScreen';
+import CleaningStandardsScreen from './src/screens/inspection/CleaningStandardsScreen';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -133,12 +136,20 @@ function AuthNavigator() {
 
 function MainNavigator() {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Navigator 
+      screenOptions={{ 
+        headerShown: false,
+        animation: 'slide_from_right'
+      }}
+    >
       <Stack.Screen name="Tabs" component={TabNavigator} />
       <Stack.Screen name="Inspection" component={InspectionScreen} />
       <Stack.Screen name="InspectionChecklist" component={InspectionChecklistScreen} />
       <Stack.Screen name="InspectionDetails" component={InspectionDetailsScreen} />
       <Stack.Screen name="PreHoldCleaning" component={PreHoldCleaningScreen} />
+      <Stack.Screen name="PreInspectionDoc" component={PreInspectionDocScreen} />
+      <Stack.Screen name="VesselParticular" component={VesselParticularScreen} />
+      <Stack.Screen name="CleaningStandards" component={CleaningStandardsScreen} />
     </Stack.Navigator>
   );
 }
