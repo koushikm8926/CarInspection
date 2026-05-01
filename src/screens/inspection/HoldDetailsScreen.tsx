@@ -5,6 +5,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { ArrowLeft, Camera, CheckCircle2, ChevronRight, Layers } from 'lucide-react-native';
 import Animated, { FadeInDown, FadeInRight } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
+import CustomCameraModal from '../../components/CustomCameraModal';
 
 const { width } = Dimensions.get('window');
 
@@ -36,15 +37,24 @@ export default function HoldDetailsScreen() {
     { id: 's5', label: 'Shot 5', completed: false, uri: null },
   ]);
 
+  const [isCameraVisible, setCameraVisible] = useState(false);
+  const [activeShotId, setActiveShotId] = useState<string | null>(null);
+
   const handleTakeShot = (id: string) => {
-    // Mocking the camera capture by setting it to completed with a placeholder image
-    setShots(current => 
-      current.map(shot => 
-        shot.id === id 
-          ? { ...shot, completed: true, uri: 'https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?w=400&q=80' }
-          : shot
-      )
-    );
+    setActiveShotId(id);
+    setCameraVisible(true);
+  };
+
+  const onPictureTaken = (uri: string) => {
+    if (activeShotId) {
+      setShots(current => 
+        current.map(shot => 
+          shot.id === activeShotId 
+            ? { ...shot, completed: true, uri: uri }
+            : shot
+        )
+      );
+    }
   };
 
   const completedShots = shots.filter(s => s.completed).length;
@@ -144,6 +154,12 @@ export default function HoldDetailsScreen() {
         </View>
 
       </ScrollView>
+
+      <CustomCameraModal 
+        visible={isCameraVisible} 
+        onClose={() => setCameraVisible(false)} 
+        onPictureTaken={onPictureTaken} 
+      />
     </View>
   );
 }

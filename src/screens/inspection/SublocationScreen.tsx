@@ -5,6 +5,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { ArrowLeft, Camera, CheckCircle2, Plus, Wand2, Save } from 'lucide-react-native';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
+import CustomCameraModal from '../../components/CustomCameraModal';
 
 const { width } = Dimensions.get('window');
 
@@ -31,15 +32,24 @@ export default function SublocationScreen() {
     ]);
   };
 
+  const [isCameraVisible, setCameraVisible] = useState(false);
+  const [activeAttrId, setActiveAttrId] = useState<string | null>(null);
+
   const handleTakeShot = (id: string) => {
-    // Mocking the camera capture
-    setAttributes(current => 
-      current.map(attr => 
-        attr.id === id 
-          ? { ...attr, uri: 'https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?w=200&q=80' }
-          : attr
-      )
-    );
+    setActiveAttrId(id);
+    setCameraVisible(true);
+  };
+
+  const onPictureTaken = (uri: string) => {
+    if (activeAttrId) {
+      setAttributes(current => 
+        current.map(attr => 
+          attr.id === activeAttrId 
+            ? { ...attr, uri: uri }
+            : attr
+        )
+      );
+    }
   };
 
   const handleGenerateAI = () => {
@@ -170,6 +180,12 @@ export default function SublocationScreen() {
           <Text style={styles.completeButtonText}>Mark Complete</Text>
         </TouchableOpacity>
       </View>
+
+      <CustomCameraModal 
+        visible={isCameraVisible} 
+        onClose={() => setCameraVisible(false)} 
+        onPictureTaken={onPictureTaken} 
+      />
     </KeyboardAvoidingView>
   );
 }
