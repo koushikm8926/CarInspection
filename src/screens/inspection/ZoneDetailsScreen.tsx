@@ -1,38 +1,36 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Dimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
-import { ArrowLeft, ChevronRight, Container, CheckCircle2, Circle } from 'lucide-react-native';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { ArrowLeft, CheckCircle2, ChevronRight, MapPin } from 'lucide-react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 
-const { width } = Dimensions.get('window');
-
-const INITIAL_HOLDS = [
-  { id: 'hold-1', title: 'Hold No. 1', status: 'pending', description: 'Forward cargo hold' },
-  { id: 'hold-2', title: 'Hold No. 2', status: 'pending', description: 'Mid-forward cargo hold' },
-  { id: 'hold-3', title: 'Hold No. 3', status: 'pending', description: 'Center cargo hold' },
-  { id: 'hold-4', title: 'Hold No. 4', status: 'pending', description: 'Mid-aft cargo hold' },
-  { id: 'hold-5', title: 'Hold No. 5', status: 'pending', description: 'Aft cargo hold' },
-];
-
-export default function WalkTheHoldScreen() {
-  const navigation = useNavigation();
+export default function ZoneDetailsScreen() {
+  const navigation = useNavigation<any>();
+  const route = useRoute<any>();
   const insets = useSafeAreaInsets();
-  
-  // For demo purposes, we hold the state here. 
-  // All start as pending (0% complete).
-  const [holds, setHolds] = useState(INITIAL_HOLDS);
 
-  const completedCount = holds.filter(h => h.status === 'completed').length;
-  const totalCount = holds.length;
+  const zoneTitle = route.params?.zoneTitle || 'Zone Details';
+
+  // Generate 11 sublocations mock state
+  const initialSublocations = Array.from({ length: 11 }, (_, i) => ({
+    id: `sub-${i + 1}`,
+    title: `Sublocation ${i + 1}`,
+    status: 'pending', // 'pending' | 'completed'
+  }));
+
+  const [sublocations, setSublocations] = useState(initialSublocations);
+
+  const completedCount = sublocations.filter(s => s.status === 'completed').length;
+  const totalCount = sublocations.length;
   const progressPercentage = Math.round((completedCount / totalCount) * 100);
 
   return (
     <View style={styles.container}>
       {/* Header */}
       <LinearGradient
-        colors={['#8B5CF6', '#8B5CF6', '#A78BFA']}
+        colors={['#3B82F6', '#3B82F6', '#60A5FA']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={[styles.header, { paddingTop: insets.top + 10 }]}
@@ -40,7 +38,7 @@ export default function WalkTheHoldScreen() {
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <ArrowLeft size={24} color="#FFFFFF" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Walk the Hold</Text>
+        <Text style={styles.headerTitle}>{zoneTitle}</Text>
         <View style={{ width: 40 }} />
       </LinearGradient>
 
@@ -50,14 +48,13 @@ export default function WalkTheHoldScreen() {
         <View style={styles.progressSection}>
           <View style={styles.progressHeader}>
             <View>
-              <Text style={styles.progressTitle}>Inspection Progress</Text>
-              <Text style={styles.progressSubtitle}>{completedCount} of {totalCount} Holds Completed</Text>
+              <Text style={styles.progressTitle}>Zone Progress</Text>
+              <Text style={styles.progressSubtitle}>{completedCount} of {totalCount} Completed</Text>
             </View>
             <View style={styles.percentageBadge}>
               <Text style={styles.percentageText}>{progressPercentage}%</Text>
             </View>
           </View>
-          
           <View style={styles.progressBarContainer}>
             <Animated.View 
               style={[styles.progressBarFill, { width: `${progressPercentage}%` }]} 
@@ -66,40 +63,46 @@ export default function WalkTheHoldScreen() {
         </View>
 
         <View style={styles.listContainer}>
-          <Text style={styles.sectionTitle}>Cargo Holds</Text>
+          <Text style={styles.sectionTitle}>11 Sublocations</Text>
           
-          {holds.map((item, index) => {
+          {sublocations.map((item, index) => {
             const isCompleted = item.status === 'completed';
             
             return (
               <Animated.View 
                 key={item.id} 
-                entering={FadeInDown.delay(index * 100).duration(600).springify()}
+                entering={FadeInDown.delay(index * 50).duration(400)}
               >
                 <TouchableOpacity 
                   style={[styles.cardContainer, isCompleted && styles.cardCompleted]} 
                   activeOpacity={0.8}
-                  onPress={() => navigation.navigate('HoldDetails' as never, { holdId: item.id, title: item.title } as never)}
+                  onPress={() => navigation.navigate('Sublocation', { 
+                    sublocationId: item.id, 
+                    title: item.title,
+                    zoneTitle: zoneTitle 
+                  })}
                 >
                   <View style={styles.card}>
                     <View style={[styles.iconContainer, isCompleted && styles.iconCompleted]}>
                       {isCompleted ? (
                         <CheckCircle2 size={24} color="#10B981" />
                       ) : (
-                        <Container size={24} color="#8B5CF6" />
+                        <MapPin size={24} color="#3B82F6" />
                       )}
                     </View>
                     
                     <View style={styles.cardContent}>
                       <Text style={styles.cardTitle}>{item.title}</Text>
-                      <Text style={styles.cardDescription}>{item.description}</Text>
+                      <Text style={styles.cardDescription}>
+                        {isCompleted ? 'Inspection complete' : 'Tap to add attributes & photos'}
+                      </Text>
                     </View>
                     
                     <View style={styles.chevronContainer}>
                       <Text style={[styles.statusText, isCompleted ? styles.statusCompleted : styles.statusPending]}>
                         {isCompleted ? 'Done' : 'Start'}
                       </Text>
-                      <ChevronRight size={20} color={isCompleted ? "#10B981" : "#8B5CF6"} />
+                      <ChevronRight size={20} color={isCompleted ? "#10B981" : "#3B82F6"} />
                     </View>
                   </View>
                 </TouchableOpacity>
@@ -107,6 +110,7 @@ export default function WalkTheHoldScreen() {
             );
           })}
         </View>
+
       </ScrollView>
     </View>
   );
@@ -173,13 +177,13 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   percentageBadge: {
-    backgroundColor: '#F3E8FF',
+    backgroundColor: '#EFF6FF',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 12,
   },
   percentageText: {
-    color: '#8B5CF6',
+    color: '#3B82F6',
     fontWeight: '800',
     fontSize: 16,
   },
@@ -191,7 +195,7 @@ const styles = StyleSheet.create({
   },
   progressBarFill: {
     height: '100%',
-    backgroundColor: '#8B5CF6',
+    backgroundColor: '#3B82F6',
     borderRadius: 4,
   },
   listContainer: {
@@ -204,7 +208,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   cardContainer: {
-    marginBottom: 16,
+    marginBottom: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.03,
@@ -224,10 +228,10 @@ const styles = StyleSheet.create({
     borderColor: '#F1F5F9',
   },
   iconContainer: {
-    width: 52,
-    height: 52,
-    borderRadius: 16,
-    backgroundColor: '#F3E8FF',
+    width: 48,
+    height: 48,
+    borderRadius: 14,
+    backgroundColor: '#EFF6FF',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -240,7 +244,7 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   cardTitle: {
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: '700',
     color: '#1E293B',
     marginBottom: 4,
@@ -248,7 +252,6 @@ const styles = StyleSheet.create({
   cardDescription: {
     fontSize: 13,
     color: '#64748B',
-    lineHeight: 18,
   },
   chevronContainer: {
     flexDirection: 'row',
@@ -264,7 +267,7 @@ const styles = StyleSheet.create({
     marginRight: 4,
   },
   statusPending: {
-    color: '#8B5CF6',
+    color: '#3B82F6',
   },
   statusCompleted: {
     color: '#10B981',

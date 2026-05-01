@@ -31,6 +31,9 @@ import PreInspectionDocScreen from './src/screens/inspection/PreInspectionDocScr
 import VesselParticularScreen from './src/screens/inspection/VesselParticularScreen';
 import CleaningStandardsScreen from './src/screens/inspection/CleaningStandardsScreen';
 import WalkTheHoldScreen from './src/screens/inspection/WalkTheHoldScreen';
+import HoldDetailsScreen from './src/screens/inspection/HoldDetailsScreen';
+import ZoneDetailsScreen from './src/screens/inspection/ZoneDetailsScreen';
+import SublocationScreen from './src/screens/inspection/SublocationScreen';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -152,6 +155,9 @@ function MainNavigator() {
       <Stack.Screen name="VesselParticular" component={VesselParticularScreen} />
       <Stack.Screen name="CleaningStandards" component={CleaningStandardsScreen} />
       <Stack.Screen name="WalkTheHold" component={WalkTheHoldScreen} />
+      <Stack.Screen name="HoldDetails" component={HoldDetailsScreen} />
+      <Stack.Screen name="ZoneDetails" component={ZoneDetailsScreen} />
+      <Stack.Screen name="Sublocation" component={SublocationScreen} />
     </Stack.Navigator>
   );
 }

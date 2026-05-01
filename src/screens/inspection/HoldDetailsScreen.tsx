@@ -1,0 +1,291 @@
+import React, { useState } from 'react';
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Dimensions, Image } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { ArrowLeft, Camera, CheckCircle2, ChevronRight, Layers } from 'lucide-react-native';
+import Animated, { FadeInDown, FadeInRight } from 'react-native-reanimated';
+import { LinearGradient } from 'expo-linear-gradient';
+
+const { width } = Dimensions.get('window');
+
+const ZONES = [
+  { id: 'z1', title: 'Hatch Cover' },
+  { id: 'z2', title: 'Under Deck Area' },
+  { id: 'z3', title: 'Forward Bulk Head & Stools' },
+  { id: 'z4', title: 'Aft Bulkhead & Stools' },
+  { id: 'z5', title: 'Starboard' },
+  { id: 'z6', title: 'Portside' },
+  { id: 'z7', title: 'Hatch Coaming' },
+  { id: 'z8', title: 'Tank Top' },
+  { id: 'z9', title: 'Ladders' },
+];
+
+export default function HoldDetailsScreen() {
+  const navigation = useNavigation<any>();
+  const route = useRoute<any>();
+  const insets = useSafeAreaInsets();
+  
+  const holdTitle = route.params?.title || 'Hold Details';
+
+  // Mock state for mandatory shots
+  const [shots, setShots] = useState([
+    { id: 's1', label: 'Shot 1', completed: false, uri: null },
+    { id: 's2', label: 'Shot 2', completed: false, uri: null },
+    { id: 's3', label: 'Shot 3', completed: false, uri: null },
+    { id: 's4', label: 'Shot 4', completed: false, uri: null },
+    { id: 's5', label: 'Shot 5', completed: false, uri: null },
+  ]);
+
+  const handleTakeShot = (id: string) => {
+    // Mocking the camera capture by setting it to completed with a placeholder image
+    setShots(current => 
+      current.map(shot => 
+        shot.id === id 
+          ? { ...shot, completed: true, uri: 'https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?w=400&q=80' }
+          : shot
+      )
+    );
+  };
+
+  const completedShots = shots.filter(s => s.completed).length;
+
+  return (
+    <View style={styles.container}>
+      {/* Header */}
+      <LinearGradient
+        colors={['#8B5CF6', '#8B5CF6', '#A78BFA']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={[styles.header, { paddingTop: insets.top + 10 }]}
+      >
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+          <ArrowLeft size={24} color="#FFFFFF" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>{holdTitle}</Text>
+        <View style={{ width: 40 }} />
+      </LinearGradient>
+
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+        
+        {/* Mandatory Shots Section */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Mandatory Shots</Text>
+            <Text style={styles.progressText}>{completedShots}/5 Completed</Text>
+          </View>
+
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.shotsScroll}
+          >
+            {shots.map((shot, index) => (
+              <Animated.View 
+                key={shot.id}
+                entering={FadeInRight.delay(index * 100).duration(500)}
+              >
+                <TouchableOpacity 
+                  style={[styles.shotCard, shot.completed && styles.shotCardCompleted]}
+                  onPress={() => handleTakeShot(shot.id)}
+                  activeOpacity={0.8}
+                >
+                  {shot.completed && shot.uri ? (
+                    <View style={styles.shotImageContainer}>
+                      <Image source={{ uri: shot.uri }} style={styles.shotImage} />
+                      <View style={styles.shotOverlay}>
+                        <CheckCircle2 size={28} color="#10B981" fill="#FFFFFF" />
+                      </View>
+                    </View>
+                  ) : (
+                    <View style={styles.shotEmptyState}>
+                      <Camera size={32} color="#A78BFA" />
+                      <Text style={styles.shotLabel}>{shot.label}</Text>
+                    </View>
+                  )}
+                </TouchableOpacity>
+              </Animated.View>
+            ))}
+          </ScrollView>
+        </View>
+
+        {/* Zones Section */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Inspection Zones</Text>
+            <Text style={styles.progressText}>9 Zones</Text>
+          </View>
+
+          <View style={styles.zonesList}>
+            {ZONES.map((zone, index) => (
+              <Animated.View 
+                key={zone.id}
+                entering={FadeInDown.delay(index * 50).duration(500)}
+              >
+                <TouchableOpacity 
+                  style={styles.zoneCard}
+                  activeOpacity={0.8}
+                  onPress={() => navigation.navigate('ZoneDetails' as never, { zoneId: zone.id, zoneTitle: zone.title } as never)}
+                >
+                  <View style={styles.zoneIconContainer}>
+                    <Layers size={20} color="#8B5CF6" />
+                  </View>
+                  
+                  <View style={styles.zoneContent}>
+                    <Text style={styles.zoneTitle}>{zone.title}</Text>
+                    {/* Mock Progress */}
+                    <Text style={styles.zoneProgress}>0/11 Sublocations Completed</Text>
+                  </View>
+                  
+                  <ChevronRight size={20} color="#CBD5E1" />
+                </TouchableOpacity>
+              </Animated.View>
+            ))}
+          </View>
+        </View>
+
+      </ScrollView>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#F8FAFC',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingBottom: 24,
+    borderBottomLeftRadius: 32,
+    borderBottomRightRadius: 32,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 20,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#FFFFFF',
+  },
+  scrollContent: {
+    paddingBottom: 40,
+    paddingTop: 24,
+  },
+  section: {
+    marginBottom: 32,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-end',
+    paddingHorizontal: 24,
+    marginBottom: 16,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: '#1E293B',
+  },
+  progressText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#8B5CF6',
+  },
+  shotsScroll: {
+    paddingHorizontal: 24,
+    paddingBottom: 8,
+  },
+  shotCard: {
+    width: 120,
+    height: 140,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    marginRight: 16,
+    borderWidth: 2,
+    borderColor: '#E2E8F0',
+    borderStyle: 'dashed',
+    overflow: 'hidden',
+  },
+  shotCardCompleted: {
+    borderStyle: 'solid',
+    borderColor: '#10B981',
+    borderWidth: 3,
+  },
+  shotEmptyState: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  shotLabel: {
+    marginTop: 12,
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#64748B',
+  },
+  shotImageContainer: {
+    flex: 1,
+    position: 'relative',
+  },
+  shotImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  shotOverlay: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    backgroundColor: 'rgba(255,255,255,0.9)',
+    borderRadius: 14,
+  },
+  zonesList: {
+    paddingHorizontal: 24,
+  },
+  zoneCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    padding: 16,
+    borderRadius: 20,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#F1F5F9',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.03,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  zoneIconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    backgroundColor: '#F3E8FF',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  zoneContent: {
+    flex: 1,
+    marginLeft: 16,
+    marginRight: 8,
+  },
+  zoneTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#1E293B',
+    marginBottom: 4,
+  },
+  zoneProgress: {
+    fontSize: 13,
+    color: '#64748B',
+    fontWeight: '500',
+  },
+});
