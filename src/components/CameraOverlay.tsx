@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text } from 'react-native';
 
 interface CameraOverlayProps {
@@ -7,8 +7,29 @@ interface CameraOverlayProps {
 }
 
 export const CameraOverlay: React.FC<CameraOverlayProps> = ({ guideText, isStable }) => {
+  const [framingPercentage, setFramingPercentage] = useState(65);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setFramingPercentage(prev => {
+        const targetMin = isStable ? 92 : 45;
+        const targetMax = isStable ? 99 : 78;
+        
+        const step = Math.floor(Math.random() * 7) - 3; 
+        let next = prev + step;
+
+        if (next < targetMin) next += 5;
+        if (next > targetMax) next -= 5;
+        
+        return Math.max(0, Math.min(100, next));
+      });
+    }, 350);
+
+    return () => clearInterval(interval);
+  }, [isStable]);
+
   return (
-    <View style={styles.container}>
+    <View style={styles.container} pointerEvents="none">
       <View style={styles.topSection}>
         <View style={styles.statusRow}>
           <View style={[styles.indicator, { backgroundColor: isStable ? '#34c759' : '#ff3b30' }]} />
@@ -33,7 +54,7 @@ export const CameraOverlay: React.FC<CameraOverlayProps> = ({ guideText, isStabl
       </View>
 
       <View style={styles.bottomSection}>
-        <Text style={styles.instruction}>Align the vehicle within the frame</Text>
+        <Text style={styles.instruction}>Framing: {framingPercentage}%</Text>
       </View>
     </View>
   );

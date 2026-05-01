@@ -102,13 +102,13 @@ export default function InspectionCamera() {
         <CameraOverlay guideText={(label as string) || "FRONT LEFT"} isStable={isStable} />
         
         <TouchableOpacity 
-          style={[styles.closeButton, { top: insets.top + 20 }]} 
+          style={[styles.closeButton, { top: insets.top > 0 ? insets.top + 5 : 15 }]} 
           onPress={() => navigation.goBack()}
         >
           <X size={28} color="#fff" />
         </TouchableOpacity>
 
-        <View style={styles.controls}>
+        <View style={[styles.controls, { bottom: insets.bottom > 0 ? insets.bottom : 20 }]}>
           <TouchableOpacity 
             style={[styles.captureButton, !isStable && styles.captureButtonDisabled]} 
             onPress={takePicture}
@@ -146,9 +146,10 @@ const styles = StyleSheet.create({
   },
   controls: {
     position: 'absolute',
-    bottom: 40,
     width: '100%',
     alignItems: 'center',
+    zIndex: 10,
+    elevation: 10,
   },
   captureButton: {
     width: 80,
