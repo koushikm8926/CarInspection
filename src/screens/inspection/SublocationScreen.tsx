@@ -185,6 +185,7 @@ export default function SublocationScreen() {
         visible={isCameraVisible} 
         onClose={() => setCameraVisible(false)} 
         onPictureTaken={onPictureTaken} 
+        guideText={attributes.find(a => a.id === activeAttrId)?.type ? `${attributes.find(a => a.id === activeAttrId)?.type} PHOTO`.toUpperCase() : "CAPTURE PHOTO"}
       />
     </KeyboardAvoidingView>
   );

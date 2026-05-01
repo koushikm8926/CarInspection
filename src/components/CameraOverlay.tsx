@@ -27,15 +27,7 @@ export const CameraOverlay: React.FC<CameraOverlayProps> = ({ guideText, isStabl
           <View style={[styles.corner, styles.topRight]} />
           <View style={[styles.corner, styles.bottomLeft]} />
           <View style={[styles.corner, styles.bottomRight]} />
-          
-          {/* Mock Car Outline (Could be an SVG) */}
-          <View style={styles.carOutline}>
-            <View style={styles.carBody} />
-            <View style={styles.carWheels}>
-              <View style={styles.wheel} />
-              <View style={styles.wheel} />
-            </View>
-          </View>
+
         </View>
         <View style={styles.sideOverlay} />
       </View>
@@ -96,7 +88,6 @@ const styles = StyleSheet.create({
   },
   focusArea: {
     width: '85%',
-    aspectRatio: 1.5,
     borderWidth: 0,
     justifyContent: 'center',
     alignItems: 'center',
@@ -142,33 +133,5 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     opacity: 0.8,
-  },
-  carOutline: {
-    width: '70%',
-    height: '50%',
-    opacity: 0.3,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  carBody: {
-    width: '100%',
-    height: '60%',
-    backgroundColor: 'transparent',
-    borderWidth: 2,
-    borderColor: '#fff',
-    borderRadius: 10,
-  },
-  carWheels: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '80%',
-    marginTop: -5,
-  },
-  wheel: {
-    width: 15,
-    height: 15,
-    borderRadius: 7.5,
-    borderWidth: 2,
-    borderColor: '#fff',
   }
 });

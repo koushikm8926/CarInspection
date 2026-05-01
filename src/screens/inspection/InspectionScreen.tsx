@@ -8,6 +8,7 @@ import { useInspectionStore } from '../../store/useInspectionStore';
 import { imageValidationService } from '../../services/imageValidationService';
 import { useStability } from '../../hooks/useStability';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function InspectionCamera() {
   const route = useRoute<any>();
@@ -18,6 +19,7 @@ export default function InspectionCamera() {
   const cameraRef = useRef<any>(null);
   const navigation = useNavigation<any>();
   const addPhoto = useInspectionStore((state) => state.addPhoto);
+  const insets = useSafeAreaInsets();
 
   // Keep screen awake while camera is active
   React.useEffect(() => {
@@ -100,7 +102,7 @@ export default function InspectionCamera() {
         <CameraOverlay guideText={(label as string) || "FRONT LEFT"} isStable={isStable} />
         
         <TouchableOpacity 
-          style={styles.closeButton} 
+          style={[styles.closeButton, { top: insets.top + 20 }]} 
           onPress={() => navigation.goBack()}
         >
           <X size={28} color="#fff" />
@@ -136,7 +138,6 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     position: 'absolute',
-    top: 50,
     right: 20,
     zIndex: 10,
     padding: 10,

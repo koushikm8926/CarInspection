@@ -159,6 +159,7 @@ export default function HoldDetailsScreen() {
         visible={isCameraVisible} 
         onClose={() => setCameraVisible(false)} 
         onPictureTaken={onPictureTaken} 
+        guideText={shots.find(s => s.id === activeShotId)?.label || "CAPTURE PHOTO"}
       />
     </View>
   );
