@@ -43,6 +43,7 @@ const OPTIONS = [
     icon: Navigation,
     colors: ['#8B5CF6', '#A78BFA'],
     iconColor: '#FFF',
+    screen: 'WalkTheHold',
   },
   {
     id: 'days-fresh-water',

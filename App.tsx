@@ -30,6 +30,7 @@ import PreHoldCleaningScreen from './src/screens/inspection/PreHoldCleaningScree
 import PreInspectionDocScreen from './src/screens/inspection/PreInspectionDocScreen';
 import VesselParticularScreen from './src/screens/inspection/VesselParticularScreen';
 import CleaningStandardsScreen from './src/screens/inspection/CleaningStandardsScreen';
+import WalkTheHoldScreen from './src/screens/inspection/WalkTheHoldScreen';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -150,6 +151,7 @@ function MainNavigator() {
       <Stack.Screen name="PreInspectionDoc" component={PreInspectionDocScreen} />
       <Stack.Screen name="VesselParticular" component={VesselParticularScreen} />
       <Stack.Screen name="CleaningStandards" component={CleaningStandardsScreen} />
+      <Stack.Screen name="WalkTheHold" component={WalkTheHoldScreen} />
     </Stack.Navigator>
   );
 }
