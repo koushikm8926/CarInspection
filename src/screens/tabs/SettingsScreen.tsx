@@ -72,7 +72,7 @@ export default function Settings() {
           style: 'destructive',
           onPress: async () => {
             await logout();
-            navigation.reset({ index: 0, routes: [{ name: 'Auth' }] });
+            // Navigation handles auth state automatically
           }
         },
       ]

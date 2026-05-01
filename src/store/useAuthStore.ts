@@ -34,15 +34,12 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   initialize: async () => {
     try {
-      const token = await secureStorage.getToken();
-      const user = await secureStorage.getUser();
-      if (token && user) {
-        set({ user, token, isAuthenticated: true });
-      }
+      // Clear storage on startup to force login every time
+      await secureStorage.clearAll();
     } catch (error) {
       console.error('Failed to initialize auth store', error);
     } finally {
-      set({ isLoading: false });
+      set({ isLoading: false, isAuthenticated: false, user: null, token: null });
     }
   },
 }));

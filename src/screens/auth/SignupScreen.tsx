@@ -27,7 +27,6 @@ export default function SignUp() {
     try {
       const response = await authService.signup(email, password, name);
       setUser(response.user, response.token);
-      navigation.reset({ index: 0, routes: [{ name: 'Main' }] });
     } catch (err: any) {
       setError(err.message || 'Sign up failed');
     } finally {

@@ -2,30 +2,49 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import { Mail, Lock, LogIn } from 'lucide-react-native';
+import { Mail, LogIn, KeyRound } from 'lucide-react-native';
 import { useAuthStore } from '../../store/useAuthStore';
 import { authService } from '../../services/authService';
 
 export default function Login() {
   const [email, setEmail] = useState('');
+  const [otp, setOtp] = useState('');
+  const [showOtp, setShowOtp] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   
   const navigation = useNavigation<any>();
   const setUser = useAuthStore((state) => state.setUser);
 
-  const handleLogin = async () => {
+  const handleSendOtp = async () => {
     if (!email) {
       setError('Please enter your email');
       return;
     }
-
     setLoading(true);
     setError('');
     try {
-      const response = await authService.login(email);
+      await authService.sendOtp(email);
+      setShowOtp(true);
+      setError('OTP sent! Use 1234 for testing.');
+    } catch (err: any) {
+      setError(err.message || 'Failed to send OTP');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    if (!otp) {
+      setError('Please enter the OTP');
+      return;
+    }
+    setLoading(true);
+    setError('');
+    try {
+      const response = await authService.verifyOtp(email, otp);
       setUser(response.user, response.token);
-      navigation.reset({ index: 0, routes: [{ name: 'Main' }] });
+      // Navigation is automatically handled by App.tsx conditionally rendering MainNavigator
     } catch (err: any) {
       setError(err.message || 'Login failed');
     } finally {
@@ -46,7 +65,7 @@ export default function Login() {
         </View>
 
         <View style={styles.form}>
-          {error ? <Text style={styles.errorText}>{error}</Text> : null}
+          {error ? <Text style={[styles.errorText, error.includes('sent') && { color: '#0787e2', backgroundColor: '#e0f2fe' }]}>{error}</Text> : null}
 
           <View style={styles.inputContainer}>
             <Mail size={20} color="#999" style={styles.inputIcon} />
@@ -58,18 +77,36 @@ export default function Login() {
               keyboardType="email-address"
               autoCapitalize="none"
               placeholderTextColor="#999"
+              editable={!loading}
             />
           </View>
+
+          {showOtp && (
+            <View style={styles.inputContainer}>
+              <KeyRound size={20} color="#999" style={styles.inputIcon} />
+              <TextInput
+                style={styles.input}
+                placeholder="Enter OTP (e.g. 1234)"
+                value={otp}
+                onChangeText={setOtp}
+                keyboardType="number-pad"
+                placeholderTextColor="#999"
+                editable={!loading}
+                maxLength={6}
+              />
+            </View>
+          )}
+
           <TouchableOpacity 
             style={styles.loginButton} 
-            onPress={handleLogin}
+            onPress={showOtp ? handleVerifyOtp : handleSendOtp}
             disabled={loading}
           >
             {loading ? (
               <ActivityIndicator color="#fff" />
             ) : (
               <>
-                <Text style={styles.loginButtonText}>Login</Text>
+                <Text style={styles.loginButtonText}>{showOtp ? 'Verify OTP' : 'Send OTP'}</Text>
                 <LogIn size={20} color="#fff" style={{ marginLeft: 8 }} />
               </>
             )}

@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
+import { View, TouchableOpacity } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import * as SplashScreen from 'expo-splash-screen';
-import { Home, History, Car, Settings, Camera } from 'lucide-react-native';
+import { Home, Car, ClipboardList, Settings as SettingsIcon, Camera, LayoutGrid } from 'lucide-react-native';
 
 // Stores
 import { useAuthStore } from './src/store/useAuthStore';
@@ -52,13 +53,15 @@ function TabNavigator() {
         name="Home" 
         component={HomeScreen} 
         options={{
-          tabBarIcon: ({ color }) => <Home size={24} color={color} />,
+          tabBarLabel: 'Home',
+          tabBarIcon: ({ color }) => <LayoutGrid size={24} color={color} />,
         }}
       />
       <Tab.Screen 
         name="Vehicles" 
         component={VehiclesScreen} 
         options={{
+          tabBarLabel: 'Vehicles',
           tabBarIcon: ({ color }) => <Car size={24} color={color} />,
         }}
       />
@@ -66,22 +69,53 @@ function TabNavigator() {
         name="Camera" 
         component={CameraScreen} 
         options={{
-          tabBarIcon: ({ color }) => <Camera size={24} color={color} />,
-          tabBarButton: () => null, // Hidden from tab bar but part of tab stack
+          tabBarLabel: '',
+          tabBarIcon: () => null,
+          tabBarButton: ({ onPress }) => (
+            <TouchableOpacity
+              onPress={onPress}
+              activeOpacity={0.8}
+              style={{
+                top: -20,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              <View style={{
+                width: 60,
+                height: 60,
+                borderRadius: 30,
+                backgroundColor: '#0787e2',
+                justifyContent: 'center',
+                alignItems: 'center',
+                shadowColor: '#0787e2',
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.3,
+                shadowRadius: 8,
+                elevation: 5,
+                borderWidth: 4,
+                borderColor: '#ffffff',
+              }}>
+                <Camera size={24} color="#ffffff" />
+              </View>
+            </TouchableOpacity>
+          ),
         }}
       />
       <Tab.Screen 
         name="History" 
         component={HistoryScreen} 
         options={{
-          tabBarIcon: ({ color }) => <History size={24} color={color} />,
+          tabBarLabel: 'History',
+          tabBarIcon: ({ color }) => <ClipboardList size={24} color={color} />,
         }}
       />
       <Tab.Screen 
         name="Settings" 
         component={SettingsScreen} 
         options={{
-          tabBarIcon: ({ color }) => <Settings size={24} color={color} />,
+          tabBarLabel: 'Settings',
+          tabBarIcon: ({ color }) => <SettingsIcon size={24} color={color} />,
         }}
       />
     </Tab.Navigator>

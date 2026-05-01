@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Dimensions, Platform } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Dimensions, Platform, Image } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Camera, Car, ClipboardList, Settings, Bell, ChevronRight, TrendingUp, Clock, CheckCircle2 } from 'lucide-react-native';
+import { Camera, ClipboardCheck, Ship, Layers, ChevronRight, CheckCircle2, Car } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useInspectionStore } from '../../store/useInspectionStore';
@@ -26,17 +26,6 @@ export default function Home() {
   const totalInspections = inspections.length;
   const pendingInspections = inspections.filter(i => i.status === 'pending' || i.status === 'draft').length;
 
-  const StatCard = ({ label, value, icon: Icon, color, delay }: any) => (
-    <Animated.View entering={FadeInRight.delay(delay).duration(600).springify()} style={styles.statCard}>
-      <LinearGradient colors={[color, color + 'CC']} style={styles.statGradient}>
-        <Icon size={24} color="#fff" />
-        <View style={styles.statInfo}>
-          <Text style={styles.statValue}>{value}</Text>
-          <Text style={styles.statLabel}>{label}</Text>
-        </View>
-      </LinearGradient>
-    </Animated.View>
-  );
 
   return (
     <View style={styles.container}>
@@ -55,19 +44,14 @@ export default function Home() {
                 <Text style={styles.greetingText}>Welcome back,</Text>
                 <Text style={styles.userNameText}>{user?.name || 'User'}</Text>
               </View>
-              <TouchableOpacity style={styles.notificationBtn}>
-                <Bell size={24} color="#fff" />
-                <View style={styles.notificationDot} />
+              <TouchableOpacity style={styles.profileBtn}>
+                <Image 
+                  source={{ uri: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=256&h=256' }} 
+                  style={styles.profileAvatar} 
+                />
               </TouchableOpacity>
             </View>
 
-            <View style={styles.statsContainer}>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.statsScroll}>
-                <StatCard label="Total" value={totalInspections} icon={TrendingUp} color="#10B981" delay={200} />
-                <StatCard label="Pending" value={pendingInspections} icon={Clock} color="#F59E0B" delay={400} />
-                <StatCard label="Vehicles" value="8" icon={Car} color="#0787e2" delay={600} />
-              </ScrollView>
-            </View>
           </LinearGradient>
         </View>
 
@@ -103,9 +87,9 @@ export default function Home() {
 
           <View style={styles.secondaryActionsGrid}>
             {[
-              { href: "/(tabs)/history", icon: ClipboardList, label: "History", color: "#ECFDF5", iconColor: "#10B981" },
-              { href: "/(tabs)/vehicles", icon: Car, label: "Vehicles", color: "#FFFBEB", iconColor: "#F59E0B" },
-              { href: "/(tabs)/settings", icon: Settings, label: "Settings", color: "#F8FAFC", iconColor: "#64748B" },
+              { screen: "History",  icon: ClipboardCheck, label: "Pre Hold\nCleaning",  color: "#ECFDF5", iconColor: "#10B981" },
+              { screen: "Vehicles", icon: Ship,           label: "Bunker\nSurvey",    color: "#EFF6FF", iconColor: "#0787e2" },
+              { screen: "Settings", icon: Layers,          label: "Combined\nInsp.",    color: "#FAF5FF", iconColor: "#8B5CF6" },
             ].map((item, index) => (
               <Animated.View 
                 key={index} 
@@ -113,7 +97,7 @@ export default function Home() {
                 style={styles.secondaryActionCardContainer}
               >
                 
-                  <TouchableOpacity style={styles.secondaryActionCard} onPress={() => navigation.navigate(item.label)}>
+                  <TouchableOpacity style={styles.secondaryActionCard} onPress={() => navigation.navigate(item.screen)}>
                     <View style={[styles.secondaryIconContainer, { backgroundColor: item.color }]}>
                       <item.icon size={22} color={item.iconColor} />
                     </View>
@@ -178,12 +162,11 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   headerContainer: {
-    height: 300,
-    marginBottom: 40,
+    marginBottom: 24,
   },
   headerGradient: {
     paddingHorizontal: 24,
-    height: '100%',
+    paddingBottom: 32,
     borderBottomLeftRadius: 40,
     borderBottomRightRadius: 40,
   },
@@ -205,24 +188,20 @@ const styles = StyleSheet.create({
     marginTop: 4,
     letterSpacing: -0.5,
   },
-  notificationBtn: {
+  profileBtn: {
     width: 48,
     height: 48,
     borderRadius: 14,
     backgroundColor: 'rgba(255,255,255,0.2)',
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  notificationDot: {
-    position: 'absolute',
-    top: 12,
-    right: 12,
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: '#EF4444',
+    overflow: 'hidden',
     borderWidth: 2,
-    borderColor: '#0787e2',
+    borderColor: 'rgba(255,255,255,0.5)',
+  },
+  profileAvatar: {
+    width: '100%',
+    height: '100%',
   },
   statsContainer: {
     marginTop: 8,
