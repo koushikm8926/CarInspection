@@ -3,7 +3,6 @@ import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Dimensions } from
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { ArrowLeft, ChevronRight, FileText, Ship, PaintBucket, Navigation, Droplets } from 'lucide-react-native';
-import Animated, { FadeInDown } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 
 const { width } = Dimensions.get('window');
@@ -85,9 +84,8 @@ export default function PreHoldCleaningScreen() {
           {OPTIONS.map((item, index) => {
             const Icon = item.icon;
             return (
-              <Animated.View 
-                key={item.id} 
-                entering={FadeInDown.delay(index * 100).duration(600).springify()}
+              <View 
+                key={item.id}
               >
                 <TouchableOpacity 
                   style={styles.cardContainer} 
@@ -114,7 +112,7 @@ export default function PreHoldCleaningScreen() {
                     </View>
                   </View>
                 </TouchableOpacity>
-              </Animated.View>
+              </View>
             );
           })}
         </View>

@@ -5,7 +5,6 @@ import { Camera, ClipboardCheck, Ship, Layers, ChevronRight, CheckCircle2, Car }
 import { useNavigation } from '@react-navigation/native';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useInspectionStore } from '../../store/useInspectionStore';
-import Animated, { FadeInDown, FadeInRight } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 
 const { width } = Dimensions.get('window');
@@ -59,7 +58,7 @@ export default function Home() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Quick Actions</Text>
           
-          <Animated.View entering={FadeInDown.duration(600)}>
+          <View>
             
               <TouchableOpacity style={styles.primaryActionCard} onPress={() => navigation.navigate('Camera')}>
                 <LinearGradient
@@ -83,7 +82,7 @@ export default function Home() {
                 </LinearGradient>
               </TouchableOpacity>
             
-          </Animated.View>
+          </View>
 
           <View style={styles.secondaryActionsGrid}>
             {[
@@ -91,9 +90,8 @@ export default function Home() {
               { screen: null, icon: Ship,           label: "Bunker\nSurvey",    color: "#EFF6FF", iconColor: "#0787e2" },
               { screen: null, icon: Layers,          label: "Combined\nInsp.",    color: "#FAF5FF", iconColor: "#8B5CF6" },
             ].map((item, index) => (
-              <Animated.View 
-                key={index} 
-                entering={FadeInDown.delay((index + 1) * 100).duration(600)}
+              <View 
+                key={index}
                 style={styles.secondaryActionCardContainer}
               >
                 
@@ -108,7 +106,7 @@ export default function Home() {
                     <Text style={styles.secondaryActionLabel}>{item.label}</Text>
                   </TouchableOpacity>
                 
-              </Animated.View>
+              </View>
             ))}
           </View>
         </View>
@@ -124,9 +122,8 @@ export default function Home() {
 
           {recentInspections.length > 0 ? (
             recentInspections.map((item, index) => (
-              <Animated.View 
-                key={item.id} 
-                entering={FadeInDown.delay(400 + index * 100).duration(600)}
+              <View 
+                key={item.id}
               >
                 <TouchableOpacity 
                   style={styles.activityItem}
@@ -143,7 +140,7 @@ export default function Home() {
                   </View>
                   <ChevronRight size={20} color="#CBD5E1" />
                 </TouchableOpacity>
-              </Animated.View>
+              </View>
             ))
           ) : (
             <View style={styles.emptyState}>

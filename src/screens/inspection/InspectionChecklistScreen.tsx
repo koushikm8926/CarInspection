@@ -6,7 +6,6 @@ import { CheckCircle2, Circle, ChevronRight, Camera, ArrowLeft, Info, Trophy } f
 import { INSPECTION_STEPS, InspectionStep } from '../../constants/inspectionSteps';
 import { databaseService, PhotoRecord } from '../../services/databaseService';
 import { useInspectionStore } from '../../store/useInspectionStore';
-import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 
 export default function InspectionChecklist() {
@@ -90,7 +89,7 @@ export default function InspectionChecklist() {
         
         <Text style={styles.title}>Inspection Checklist</Text>
         
-        <Animated.View entering={FadeInDown.duration(800)} style={styles.progressCard}>
+        <View style={styles.progressCard}>
           <LinearGradient
             colors={['#0787e2', '#0787e2']}
             start={{ x: 0, y: 0 }}
@@ -114,16 +113,15 @@ export default function InspectionChecklist() {
               <View style={[styles.progressFill, { width: `${progress * 100}%` }]} />
             </View>
           </LinearGradient>
-        </Animated.View>
+        </View>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} style={styles.stepsList} contentContainerStyle={styles.stepsContent}>
         {INSPECTION_STEPS.map((step, index) => {
           const completed = isStepCompleted(step.id);
           return (
-            <Animated.View 
-              key={step.id} 
-              entering={FadeInDown.delay(index * 100).duration(600)}
+            <View 
+              key={step.id}
             >
               <TouchableOpacity 
                 style={[styles.stepItem, completed && styles.stepItemCompleted]}
@@ -152,7 +150,7 @@ export default function InspectionChecklist() {
                   <ChevronRight size={20} color="#CBD5E1" />
                 )}
               </TouchableOpacity>
-            </Animated.View>
+            </View>
           );
         })}
       </ScrollView>

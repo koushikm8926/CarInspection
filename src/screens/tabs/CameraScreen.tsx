@@ -5,7 +5,6 @@ import { useNavigation } from '@react-navigation/native';
 import { useInspectionStore } from '../../store/useInspectionStore';
 import { useAuthStore } from '../../store/useAuthStore';
 import { Play, Sparkles, Lightbulb, Zap, ShieldCheck } from 'lucide-react-native';
-import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 
 export default function StartInspection() {
@@ -49,15 +48,15 @@ export default function StartInspection() {
         style={{ flex: 1 }}
       >
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-        <Animated.View entering={FadeInDown.duration(600)} style={styles.header}>
+        <View style={styles.header}>
           <View style={styles.iconCircle}>
             <Sparkles size={32} color="#0787e2" />
           </View>
           <Text style={styles.title}>New Inspection</Text>
           <Text style={styles.subtitle}>Ready to evaluate another vehicle? Let's get the basic details first.</Text>
-        </Animated.View>
+        </View>
 
-        <Animated.View entering={FadeInDown.delay(200).duration(600)} style={styles.form}>
+        <View style={styles.form}>
           <Text style={styles.label}>Vehicle Information</Text>
           <TextInput
             style={styles.input}
@@ -86,9 +85,9 @@ export default function StartInspection() {
               </LinearGradient>
             )}
           </TouchableOpacity>
-        </Animated.View>
+        </View>
 
-        <Animated.View entering={FadeInUp.delay(400).duration(600)} style={styles.tipsSection}>
+        <View style={styles.tipsSection}>
           <View style={styles.tipsHeader}>
             <Lightbulb size={20} color="#F59E0B" />
             <Text style={styles.tipsTitle}>Inspection Pro-Tips</Text>
@@ -109,7 +108,7 @@ export default function StartInspection() {
             text="Follow the on-screen guides for the best perspectives." 
             color="#0787e2"
           />
-        </Animated.View>
+        </View>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>

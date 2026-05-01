@@ -4,7 +4,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Car, Plus, X, Hash, Calendar, Tag, Shield, Info, ChevronRight, Search } from 'lucide-react-native';
 import { databaseService } from '../../services/databaseService';
 import { useAuthStore } from '../../store/useAuthStore';
-import Animated, { FadeInDown, FadeInRight, FadeInUp } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 
 export default function Vehicles() {
@@ -70,8 +69,7 @@ export default function Vehicles() {
   );
 
   const renderItem = ({ item, index }: { item: any, index: number }) => (
-    <Animated.View 
-      entering={FadeInRight.delay(index * 100).duration(500).springify()}
+    <View
       style={styles.card}
     >
       <View style={styles.cardMain}>
@@ -101,7 +99,7 @@ export default function Vehicles() {
         <Shield size={12} color="#10B981" />
         <Text style={styles.badgeLabel}>VERIFIED</Text>
       </View>
-    </Animated.View>
+    </View>
   );
 
   return (

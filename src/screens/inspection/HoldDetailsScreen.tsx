@@ -3,7 +3,6 @@ import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Dimensions, Image
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { ArrowLeft, Camera, CheckCircle2, ChevronRight, Layers } from 'lucide-react-native';
-import Animated, { FadeInDown, FadeInRight } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import CustomCameraModal from '../../components/CustomCameraModal';
 
@@ -90,9 +89,8 @@ export default function HoldDetailsScreen() {
             contentContainerStyle={styles.shotsScroll}
           >
             {shots.map((shot, index) => (
-              <Animated.View 
+              <View 
                 key={shot.id}
-                entering={FadeInRight.delay(index * 100).duration(500)}
               >
                 <TouchableOpacity 
                   style={[styles.shotCard, shot.completed && styles.shotCardCompleted]}
@@ -113,7 +111,7 @@ export default function HoldDetailsScreen() {
                     </View>
                   )}
                 </TouchableOpacity>
-              </Animated.View>
+              </View>
             ))}
           </ScrollView>
         </View>
@@ -127,9 +125,8 @@ export default function HoldDetailsScreen() {
 
           <View style={styles.zonesList}>
             {ZONES.map((zone, index) => (
-              <Animated.View 
+              <View 
                 key={zone.id}
-                entering={FadeInDown.delay(index * 50).duration(500)}
               >
                 <TouchableOpacity 
                   style={styles.zoneCard}
@@ -148,7 +145,7 @@ export default function HoldDetailsScreen() {
                   
                   <ChevronRight size={20} color="#CBD5E1" />
                 </TouchableOpacity>
-              </Animated.View>
+              </View>
             ))}
           </View>
         </View>

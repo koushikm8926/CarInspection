@@ -3,7 +3,6 @@ import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Dimensions, TextI
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { ArrowLeft, Camera, CheckCircle2, Plus, Wand2, Save } from 'lucide-react-native';
-import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import CustomCameraModal from '../../components/CustomCameraModal';
 
@@ -91,9 +90,8 @@ export default function SublocationScreen() {
 
         <View style={styles.attributesContainer}>
           {attributes.map((attr, index) => (
-            <Animated.View 
+            <View 
               key={attr.id}
-              entering={FadeInDown.delay(index * 100).duration(400)}
               style={styles.attributeRow}
             >
               <View style={styles.attributeInputContainer}>
@@ -133,15 +131,15 @@ export default function SublocationScreen() {
                   <Camera size={24} color="#10B981" />
                 )}
               </TouchableOpacity>
-            </Animated.View>
+            </View>
           ))}
           
-          <Animated.View entering={FadeInUp.delay(300)}>
+          <View>
             <TouchableOpacity style={styles.addButton} onPress={handleAddAttribute} activeOpacity={0.7}>
               <Plus size={20} color="#3B82F6" />
               <Text style={styles.addButtonText}>Add Attribute</Text>
             </TouchableOpacity>
-          </Animated.View>
+          </View>
         </View>
 
         <View style={styles.divider} />

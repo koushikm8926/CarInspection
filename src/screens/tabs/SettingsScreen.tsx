@@ -4,7 +4,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { User, Bell, Shield, Cloud, Info, LogOut, ChevronRight, Moon, Globe, HelpCircle } from 'lucide-react-native';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useNavigation } from '@react-navigation/native';
-import Animated, { FadeInDown } from 'react-native-reanimated';
 
 interface SettingItemProps {
   icon: any;
@@ -84,7 +83,7 @@ export default function Settings() {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         
         {/* Profile Header */}
-        <Animated.View entering={FadeInDown.duration(600)} style={styles.profileCard}>
+        <View style={styles.profileCard}>
           <View style={styles.avatar}>
             <Text style={styles.avatarText}>{user?.name?.charAt(0) || 'U'}</Text>
           </View>
@@ -95,10 +94,10 @@ export default function Settings() {
           <TouchableOpacity style={styles.editButton}>
             <Text style={styles.editButtonText}>Edit</Text>
           </TouchableOpacity>
-        </Animated.View>
+        </View>
 
         {/* Settings Groups */}
-        <Animated.View entering={FadeInDown.delay(200).duration(600)} style={styles.section}>
+        <View style={styles.section}>
           <Text style={styles.sectionTitle}>Connectivity</Text>
           <View style={styles.groupCard}>
             <SettingItem 
@@ -117,9 +116,9 @@ export default function Settings() {
               onValueChange={setSyncCellular}
             />
           </View>
-        </Animated.View>
+        </View>
 
-        <Animated.View entering={FadeInDown.delay(300).duration(600)} style={styles.section}>
+        <View style={styles.section}>
           <Text style={styles.sectionTitle}>App Preferences</Text>
           <View style={styles.groupCard}>
             <SettingItem 
@@ -138,9 +137,9 @@ export default function Settings() {
               onValueChange={setDarkMode}
             />
           </View>
-        </Animated.View>
+        </View>
 
-        <Animated.View entering={FadeInDown.delay(400).duration(600)} style={styles.section}>
+        <View style={styles.section}>
           <Text style={styles.sectionTitle}>Support</Text>
           <View style={styles.groupCard}>
             <SettingItem icon={HelpCircle} label="Help Center" />
@@ -149,15 +148,15 @@ export default function Settings() {
             <View style={styles.divider} />
             <SettingItem icon={Info} label="About Version 1.0.0" />
           </View>
-        </Animated.View>
+        </View>
 
         {/* Logout */}
-        <Animated.View entering={FadeInDown.delay(500).duration(600)}>
+        <View>
           <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
             <LogOut size={20} color="#FF3B30" />
             <Text style={styles.logoutText}>Sign Out</Text>
           </TouchableOpacity>
-        </Animated.View>
+        </View>
 
       </ScrollView>
     </SafeAreaView>

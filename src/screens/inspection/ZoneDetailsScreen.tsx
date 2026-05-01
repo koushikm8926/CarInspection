@@ -3,7 +3,6 @@ import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Dimensions } from
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { ArrowLeft, CheckCircle2, ChevronRight, MapPin } from 'lucide-react-native';
-import Animated, { FadeInDown } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 
 export default function ZoneDetailsScreen() {
@@ -56,7 +55,7 @@ export default function ZoneDetailsScreen() {
             </View>
           </View>
           <View style={styles.progressBarContainer}>
-            <Animated.View 
+            <View 
               style={[styles.progressBarFill, { width: `${progressPercentage}%` }]} 
             />
           </View>
@@ -69,9 +68,8 @@ export default function ZoneDetailsScreen() {
             const isCompleted = item.status === 'completed';
             
             return (
-              <Animated.View 
-                key={item.id} 
-                entering={FadeInDown.delay(index * 50).duration(400)}
+              <View 
+                key={item.id}
               >
                 <TouchableOpacity 
                   style={[styles.cardContainer, isCompleted && styles.cardCompleted]} 
@@ -106,7 +104,7 @@ export default function ZoneDetailsScreen() {
                     </View>
                   </View>
                 </TouchableOpacity>
-              </Animated.View>
+              </View>
             );
           })}
         </View>

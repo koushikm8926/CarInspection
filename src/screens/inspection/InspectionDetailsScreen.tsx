@@ -4,7 +4,6 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { databaseService, InspectionRecord, PhotoRecord } from '../../services/databaseService';
 import { CheckCircle2, Clock, MapPin, Calendar, User, ArrowLeft, Car, Shield, Hash, Image as ImageIcon, ChevronRight } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 
 const { width } = Dimensions.get('window');
@@ -77,7 +76,7 @@ export default function InspectionDetails() {
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         {/* Info Card */}
-        <Animated.View entering={FadeInDown.duration(600)} style={styles.infoCard}>
+        <View style={styles.infoCard}>
           <View style={styles.vehicleHeader}>
             <View style={styles.iconBox}>
               <Car size={32} color="#0787e2" />
@@ -109,7 +108,7 @@ export default function InspectionDetails() {
               </View>
             </View>
           </View>
-        </Animated.View>
+        </View>
 
         {/* Photos Section */}
         <View style={styles.section}>
@@ -123,9 +122,8 @@ export default function InspectionDetails() {
           {photos.length > 0 ? (
             <View style={styles.photoGrid}>
               {photos.map((photo, index) => (
-                <Animated.View 
-                  key={photo.id} 
-                  entering={FadeInUp.delay(index * 100).duration(500)}
+                <View 
+                  key={photo.id}
                   style={styles.photoContainer}
                 >
                   <TouchableOpacity style={styles.photoWrapper} activeOpacity={0.9}>
@@ -137,7 +135,7 @@ export default function InspectionDetails() {
                       <Text style={styles.photoType}>{photo.type.replace('_', ' ')}</Text>
                     </LinearGradient>
                   </TouchableOpacity>
-                </Animated.View>
+                </View>
               ))}
             </View>
           ) : (

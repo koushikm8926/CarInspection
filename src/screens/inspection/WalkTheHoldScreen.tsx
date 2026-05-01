@@ -3,7 +3,6 @@ import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Dimensions } from
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { ArrowLeft, ChevronRight, Container, CheckCircle2, Circle } from 'lucide-react-native';
-import Animated, { FadeInDown } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 
 const { width } = Dimensions.get('window');
@@ -59,7 +58,7 @@ export default function WalkTheHoldScreen() {
           </View>
           
           <View style={styles.progressBarContainer}>
-            <Animated.View 
+            <View 
               style={[styles.progressBarFill, { width: `${progressPercentage}%` }]} 
             />
           </View>
@@ -72,9 +71,8 @@ export default function WalkTheHoldScreen() {
             const isCompleted = item.status === 'completed';
             
             return (
-              <Animated.View 
-                key={item.id} 
-                entering={FadeInDown.delay(index * 100).duration(600).springify()}
+              <View 
+                key={item.id}
               >
                 <TouchableOpacity 
                   style={[styles.cardContainer, isCompleted && styles.cardCompleted]} 
@@ -103,7 +101,7 @@ export default function WalkTheHoldScreen() {
                     </View>
                   </View>
                 </TouchableOpacity>
-              </Animated.View>
+              </View>
             );
           })}
         </View>

@@ -6,7 +6,6 @@ import { useAuthStore } from '../../store/useAuthStore';
 import { CheckCircle2, Clock, ChevronRight, Image as ImageIcon, ClipboardList, Search, Filter, Calendar } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import { databaseService } from '../../services/databaseService';
-import Animated, { FadeInDown, FadeInRight } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 
 export default function History() {
@@ -60,7 +59,7 @@ export default function History() {
     const StatusIcon = status.icon;
 
     return (
-      <Animated.View entering={FadeInRight.delay(index * 100).duration(500).springify()}>
+      <View>
         <TouchableOpacity 
           style={styles.card} 
           onPress={() => {
@@ -113,7 +112,7 @@ export default function History() {
             </View>
           </View>
         </TouchableOpacity>
-      </Animated.View>
+      </View>
     );
   };
 
@@ -144,7 +143,7 @@ export default function History() {
         </View>
       ) : filteredInspections.length === 0 ? (
         <View style={styles.centered}>
-          <Animated.View entering={FadeInDown.duration(800)} style={styles.emptyStateContainer}>
+          <View style={styles.emptyStateContainer}>
             <View style={styles.emptyIconContainer}>
               <ClipboardList size={64} color="#CBD5E1" />
             </View>
@@ -158,7 +157,7 @@ export default function History() {
             >
               <Text style={styles.startBtnText}>Start New Inspection</Text>
             </TouchableOpacity>
-          </Animated.View>
+          </View>
         </View>
       ) : (
         <FlatList
