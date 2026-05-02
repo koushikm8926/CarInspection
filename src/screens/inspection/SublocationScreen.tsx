@@ -5,6 +5,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { ArrowLeft, Camera, CheckCircle2, Plus, Wand2, Save } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import CustomCameraModal from '../../components/CustomCameraModal';
+import { useZoneProgressStore } from '../../store/useZoneProgressStore';
 
 const { width } = Dimensions.get('window');
 
@@ -18,6 +19,10 @@ export default function SublocationScreen() {
   
   const title = route.params?.title || 'Sublocation';
   const zoneTitle = route.params?.zoneTitle || '';
+  const zoneId = route.params?.zoneId || '';
+  const sublocationId = route.params?.sublocationId || '';
+
+  const markSublocationComplete = useZoneProgressStore((s) => s.markSublocationComplete);
 
   const [attributes, setAttributes] = useState([
     { id: '1', type: 'Condition', value: '', uri: null },
@@ -56,6 +61,9 @@ export default function SublocationScreen() {
   };
 
   const handleComplete = () => {
+    if (zoneId && sublocationId) {
+      markSublocationComplete(zoneId, sublocationId);
+    }
     navigation.goBack();
   };
 

@@ -5,6 +5,11 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { ArrowLeft, Camera, CheckCircle2, ChevronRight, Layers } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import CustomCameraModal from '../../components/CustomCameraModal';
+import {
+  SUBLOCATIONS_PER_ZONE,
+  useZoneProgressStore,
+  zoneProgressCounts,
+} from '../../store/useZoneProgressStore';
 
 const ZONES = [
   { id: 'z1', title: 'Hatch Cover' },
@@ -55,6 +60,8 @@ export default function HoldDetailsScreen() {
   };
 
   const completedShots = shots.filter(s => s.completed).length;
+
+  const completedByZone = useZoneProgressStore((s) => s.completedByZone);
 
   return (
     <View style={styles.container}>
@@ -117,29 +124,46 @@ export default function HoldDetailsScreen() {
         {/* Zones Section */}
         <View style={styles.section}>
           <View style={styles.zonesList}>
-            {ZONES.map((zone, index) => (
-              <View 
-                key={zone.id}
-              >
-                <TouchableOpacity 
-                  style={styles.zoneCard}
-                  activeOpacity={0.8}
-                  onPress={() => navigation.navigate('ZoneDetails' as never, { zoneId: zone.id, zoneTitle: zone.title } as never)}
-                >
-                  <View style={styles.zoneIconContainer}>
-                    <Layers size={20} color="#8B5CF6" />
-                  </View>
-                  
-                  <View style={styles.zoneContent}>
-                    <Text style={styles.zoneTitle}>{zone.title}</Text>
-                    {/* Mock Progress */}
-                    <Text style={styles.zoneProgress}>0/11 Sublocations Completed</Text>
-                  </View>
-                  
-                  <ChevronRight size={20} color="#CBD5E1" />
-                </TouchableOpacity>
-              </View>
-            ))}
+            {ZONES.map((zone) => {
+              const { completed, total, pct } = zoneProgressCounts(
+                completedByZone,
+                zone.id,
+                SUBLOCATIONS_PER_ZONE
+              );
+              return (
+                <View key={zone.id}>
+                  <TouchableOpacity
+                    style={styles.zoneCard}
+                    activeOpacity={0.8}
+                    onPress={() =>
+                      navigation.navigate('ZoneDetails' as never, {
+                        zoneId: zone.id,
+                        zoneTitle: zone.title,
+                      } as never)
+                    }
+                  >
+                    <View style={styles.zoneIconContainer}>
+                      <Layers size={20} color="#8B5CF6" />
+                    </View>
+
+                    <View style={styles.zoneContent}>
+                      <View style={styles.zoneTitleRow}>
+                        <Text style={styles.zoneTitle}>{zone.title}</Text>
+                        <Text style={styles.zonePercent}>{pct}%</Text>
+                      </View>
+                      <Text style={styles.zoneProgress}>
+                        {completed}/{total} Sublocations completed
+                      </Text>
+                      <View style={styles.zoneProgressBarOuter}>
+                        <View style={[styles.zoneProgressBarInner, { width: `${pct}%` }]} />
+                      </View>
+                    </View>
+
+                    <ChevronRight size={20} color="#CBD5E1" />
+                  </TouchableOpacity>
+                </View>
+              );
+            })}
           </View>
         </View>
 
@@ -284,15 +308,39 @@ const styles = StyleSheet.create({
     marginLeft: 16,
     marginRight: 8,
   },
+  zoneTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 4,
+  },
   zoneTitle: {
+    flex: 1,
     fontSize: 16,
     fontWeight: '700',
     color: '#1E293B',
-    marginBottom: 4,
+    marginRight: 8,
+  },
+  zonePercent: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#8B5CF6',
   },
   zoneProgress: {
     fontSize: 13,
     color: '#64748B',
     fontWeight: '500',
+    marginBottom: 8,
+  },
+  zoneProgressBarOuter: {
+    height: 6,
+    backgroundColor: '#F1F5F9',
+    borderRadius: 3,
+    overflow: 'hidden',
+  },
+  zoneProgressBarInner: {
+    height: '100%',
+    backgroundColor: '#8B5CF6',
+    borderRadius: 3,
   },
 });

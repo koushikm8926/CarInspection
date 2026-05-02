@@ -1,29 +1,44 @@
-import React, { useState } from 'react';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Dimensions } from 'react-native';
+import React, { useMemo } from 'react';
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { ArrowLeft, CheckCircle2, ChevronRight, MapPin } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import {
+  EMPTY_COMPLETED_SUBLOCATION_IDS,
+  SUBLOCATIONS_PER_ZONE,
+  useZoneProgressStore,
+  zoneProgressCounts,
+} from '../../store/useZoneProgressStore';
 
 export default function ZoneDetailsScreen() {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
   const insets = useSafeAreaInsets();
 
+  const zoneId = route.params?.zoneId || '';
   const zoneTitle = route.params?.zoneTitle || 'Zone Details';
 
-  // Generate 11 sublocations mock state
-  const initialSublocations = Array.from({ length: 11 }, (_, i) => ({
-    id: `sub-${i + 1}`,
-    title: `Sublocation ${i + 1}`,
-    status: 'pending', // 'pending' | 'completed'
-  }));
+  const completedByZone = useZoneProgressStore((s) => s.completedByZone);
+  const completedIdsForZone =
+    useZoneProgressStore((s) => s.completedByZone[zoneId]) ?? EMPTY_COMPLETED_SUBLOCATION_IDS;
 
-  const [sublocations, setSublocations] = useState(initialSublocations);
+  const sublocations = useMemo(
+    () =>
+      Array.from({ length: SUBLOCATIONS_PER_ZONE }, (_, i) => {
+        const id = `sub-${i + 1}`;
+        const completed = completedIdsForZone.includes(id);
+        return {
+          id,
+          title: `Sublocation ${i + 1}`,
+          status: completed ? ('completed' as const) : ('pending' as const),
+        };
+      }),
+    [completedIdsForZone]
+  );
 
-  const completedCount = sublocations.filter(s => s.status === 'completed').length;
-  const totalCount = sublocations.length;
-  const progressPercentage = Math.round((completedCount / totalCount) * 100);
+  const { completed: completedCount, total: totalCount, pct: progressPercentage } =
+    zoneProgressCounts(completedByZone, zoneId, SUBLOCATIONS_PER_ZONE);
 
   return (
     <View style={styles.container}>
@@ -62,9 +77,9 @@ export default function ZoneDetailsScreen() {
         </View>
 
         <View style={styles.listContainer}>
-          <Text style={styles.sectionTitle}>11 Sublocations</Text>
+          <Text style={styles.sectionTitle}>{SUBLOCATIONS_PER_ZONE} Sublocations</Text>
           
-          {sublocations.map((item, index) => {
+          {sublocations.map((item) => {
             const isCompleted = item.status === 'completed';
             
             return (
@@ -77,7 +92,8 @@ export default function ZoneDetailsScreen() {
                   onPress={() => navigation.navigate('Sublocation', { 
                     sublocationId: item.id, 
                     title: item.title,
-                    zoneTitle: zoneTitle 
+                    zoneTitle,
+                    zoneId,
                   })}
                 >
                   <View style={styles.card}>
