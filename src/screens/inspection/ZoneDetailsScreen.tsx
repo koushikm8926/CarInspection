@@ -16,6 +16,7 @@ export default function ZoneDetailsScreen() {
   const route = useRoute<any>();
   const insets = useSafeAreaInsets();
 
+  const holdId = route.params?.holdId || 'unknown-hold';
   const zoneId = route.params?.zoneId || '';
   const zoneTitle = route.params?.zoneTitle || 'Zone Details';
 
@@ -90,6 +91,7 @@ export default function ZoneDetailsScreen() {
                   style={[styles.cardContainer, isCompleted && styles.cardCompleted]} 
                   activeOpacity={0.8}
                   onPress={() => navigation.navigate('Sublocation', { 
+                    holdId,
                     sublocationId: item.id, 
                     title: item.title,
                     zoneTitle,

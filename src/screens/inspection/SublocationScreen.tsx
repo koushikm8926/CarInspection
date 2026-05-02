@@ -1,13 +1,17 @@
-import React, { useState } from 'react';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Dimensions, TextInput, KeyboardAvoidingView, Platform, Image } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, Image } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
 import { ArrowLeft, Camera, CheckCircle2, Plus, Wand2, Save } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import CustomCameraModal from '../../components/CustomCameraModal';
 import { useZoneProgressStore } from '../../store/useZoneProgressStore';
-
-const { width } = Dimensions.get('window');
+import {
+  type DraftAttribute,
+  defaultSublocationAttributes,
+  getSublocationDraftKey,
+  useHoldInspectionDraftStore,
+} from '../../store/useHoldInspectionDraftStore';
 
 // Mock attribute options
 const ATTRIBUTE_TYPES = ['Condition', 'Defect', 'Cleanliness', 'Structural', 'Other'];
@@ -21,13 +25,75 @@ export default function SublocationScreen() {
   const zoneTitle = route.params?.zoneTitle || '';
   const zoneId = route.params?.zoneId || '';
   const sublocationId = route.params?.sublocationId || '';
+  const holdId = route.params?.holdId || 'unknown-hold';
+
+  const draftKey = useMemo(
+    () =>
+      zoneId && sublocationId
+        ? getSublocationDraftKey(holdId, zoneId, sublocationId)
+        : '',
+    [holdId, zoneId, sublocationId]
+  );
+
+  const upsertSublocationDraft = useHoldInspectionDraftStore((s) => s.upsertSublocationDraft);
 
   const markSublocationComplete = useZoneProgressStore((s) => s.markSublocationComplete);
 
-  const [attributes, setAttributes] = useState([
-    { id: '1', type: 'Condition', value: '', uri: null },
-  ]);
+  const [attributes, setAttributes] = useState(() => defaultSublocationAttributes());
   const [comment, setComment] = useState('');
+
+  const commentRef = useRef(comment);
+  commentRef.current = comment;
+
+  const draftHydrated = useRef(false);
+
+  const persistDraftAttributes = useCallback(
+    (nextAttrs: DraftAttribute[]) => {
+      if (!draftKey) return;
+      useHoldInspectionDraftStore.getState().upsertSublocationDraft(draftKey, {
+        attributes: nextAttrs,
+        comment: commentRef.current,
+      });
+    },
+    [draftKey]
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      const resetDefaults = () => {
+        setAttributes(defaultSublocationAttributes());
+        setComment('');
+      };
+
+      if (!draftKey) {
+        resetDefaults();
+        draftHydrated.current = true;
+        return () => {
+          draftHydrated.current = false;
+        };
+      }
+
+      const stored =
+        useHoldInspectionDraftStore.getState().sublocationDraftByKey[draftKey];
+      if (stored) {
+        setAttributes(stored.attributes.map((a) => ({ ...a })));
+        setComment(stored.comment);
+      } else {
+        resetDefaults();
+      }
+
+      draftHydrated.current = true;
+
+      return () => {
+        draftHydrated.current = false;
+      };
+    }, [draftKey])
+  );
+
+  useEffect(() => {
+    if (!draftKey || !draftHydrated.current) return;
+    upsertSublocationDraft(draftKey, { attributes, comment });
+  }, [attributes, comment, draftKey, upsertSublocationDraft]);
 
   const handleAddAttribute = () => {
     setAttributes([
@@ -45,15 +111,14 @@ export default function SublocationScreen() {
   };
 
   const onPictureTaken = (uri: string) => {
-    if (activeAttrId) {
-      setAttributes(current => 
-        current.map(attr => 
-          attr.id === activeAttrId 
-            ? { ...attr, uri: uri }
-            : attr
-        )
+    if (!activeAttrId) return;
+    setAttributes((current) => {
+      const next = current.map((attr) =>
+        attr.id === activeAttrId ? { ...attr, uri } : attr
       );
-    }
+      persistDraftAttributes(next);
+      return next;
+    });
   };
 
   const handleGenerateAI = () => {

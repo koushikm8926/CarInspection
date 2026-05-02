@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Dimensions, Image } from 'react-native';
+import React, { useMemo, useState } from 'react';
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { ArrowLeft, Camera, CheckCircle2, ChevronRight, Layers } from 'lucide-react-native';
@@ -10,6 +10,18 @@ import {
   useZoneProgressStore,
   zoneProgressCounts,
 } from '../../store/useZoneProgressStore';
+import {
+  useHoldInspectionDraftStore,
+  useMandatoryShotsUriMap,
+} from '../../store/useHoldInspectionDraftStore';
+
+const MANDATORY_SHOT_SLOTS = [
+  { id: 's1', label: 'Shot 1' },
+  { id: 's2', label: 'Shot 2' },
+  { id: 's3', label: 'Shot 3' },
+  { id: 's4', label: 'Shot 4' },
+  { id: 's5', label: 'Shot 5' },
+] as const;
 
 const ZONES = [
   { id: 'z1', title: 'Hatch Cover' },
@@ -29,15 +41,20 @@ export default function HoldDetailsScreen() {
   const insets = useSafeAreaInsets();
   
   const holdTitle = route.params?.title || 'Hold Details';
+  const holdId = route.params?.holdId || 'unknown-hold';
 
-  // Mock state for mandatory shots
-  const [shots, setShots] = useState([
-    { id: 's1', label: 'Shot 1', completed: false, uri: null },
-    { id: 's2', label: 'Shot 2', completed: false, uri: null },
-    { id: 's3', label: 'Shot 3', completed: false, uri: null },
-    { id: 's4', label: 'Shot 4', completed: false, uri: null },
-    { id: 's5', label: 'Shot 5', completed: false, uri: null },
-  ]);
+  const shotUriById = useMandatoryShotsUriMap(holdId);
+  const setMandatoryShotUri = useHoldInspectionDraftStore((s) => s.setMandatoryShotUri);
+
+  const shots = useMemo(
+    () =>
+      MANDATORY_SHOT_SLOTS.map((s) => ({
+        ...s,
+        uri: shotUriById[s.id] ?? null,
+        completed: !!shotUriById[s.id],
+      })),
+    [shotUriById]
+  );
 
   const [isCameraVisible, setCameraVisible] = useState(false);
   const [activeShotId, setActiveShotId] = useState<string | null>(null);
@@ -49,17 +66,11 @@ export default function HoldDetailsScreen() {
 
   const onPictureTaken = (uri: string) => {
     if (activeShotId) {
-      setShots(current => 
-        current.map(shot => 
-          shot.id === activeShotId 
-            ? { ...shot, completed: true, uri: uri }
-            : shot
-        )
-      );
+      setMandatoryShotUri(holdId, activeShotId, uri);
     }
   };
 
-  const completedShots = shots.filter(s => s.completed).length;
+  const completedShots = shots.filter((s) => s.completed).length;
 
   const completedByZone = useZoneProgressStore((s) => s.completedByZone);
 
@@ -137,6 +148,7 @@ export default function HoldDetailsScreen() {
                     activeOpacity={0.8}
                     onPress={() =>
                       navigation.navigate('ZoneDetails' as never, {
+                        holdId,
                         zoneId: zone.id,
                         zoneTitle: zone.title,
                       } as never)
